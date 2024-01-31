@@ -1,6 +1,7 @@
 package com.hqlinh.sachapi.product;
 
 import com.hqlinh.sachapi.core.APIResponse;
+import com.hqlinh.sachapi.util.ValidationUtil;
 import com.hqlinh.sachapi.util.ValueMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
@@ -30,7 +31,9 @@ public class ProductController {
     private final Validator validator;
 
     @PostMapping(value = "/product")
-    public ResponseEntity<?> createNewProduct(@RequestBody @Valid ProductDTO.ProductRequestDTO productRequestDTO) {
+    public ResponseEntity<?> createNewProduct(@RequestBody ProductDTO.ProductRequestDTO productRequestDTO) throws MethodArgumentNotValidException {
+        //Validate
+        ValidationUtil.validate(productRequestDTO, ProductDTO.class);
 
         log.info("ProductController::createNewProduct request body: {}", ValueMapper.jsonAsString(productRequestDTO));
         ProductDTO.ProductResponseDTO productResponseDTO = productService.create(productRequestDTO);
@@ -72,22 +75,7 @@ public class ProductController {
     @PatchMapping(value = "/product/{productId}")
     public ResponseEntity<?> updateProductById(@PathVariable Long productId, @RequestBody Map<String, Object> fields) throws MethodArgumentNotValidException {
         //Validate
-        Set<Set<ConstraintViolation<ProductDTO.ProductRequestDTO>>> constraintsSet = new HashSet<>();
-        fields.forEach((String key, Object value) -> constraintsSet.add(validator.validateValue(ProductDTO.ProductRequestDTO.class, key, value)));
-        if (!constraintsSet.isEmpty()) {
-            BindingResult bindingResult = new BeanPropertyBindingResult(fields, "Map<String, Object>");
-            constraintsSet.forEach(constraints -> {
-                constraints.forEach(violation -> {
-                    bindingResult.addError(new FieldError(
-                            "Map<String, Object>",
-                            violation.getPropertyPath().toString(),
-                            violation.getMessage()
-                    ));
-                });
-            });
-            if (bindingResult.hasErrors())
-                throw new MethodArgumentNotValidException(null, bindingResult);
-        }
+        ValidationUtil.validate(fields, ProductDTO.class);
 
         log.info("ProductController::updateProductById is {}", productId);
         ProductDTO.ProductResponseDTO productResponseDTO = productService.updateProductById(productId, fields);
