@@ -26,6 +26,9 @@ public class AccountService {
         try {
             log.info("AccountService::create execution started...");
 
+            if (accountRepository.existsByEmail(accountRequestDTO.getEmail()))
+                throw new AccountException.AccountAlreadyExistsException("Account already exists with email " + accountRequestDTO.getEmail());
+
             accountRequestDTO.setPassword(passwordEncoder.encode(accountRequestDTO.getPassword()));
             Account account = DTOUtil.map(accountRequestDTO, Account.class);
             log.debug("AccountService:create request parameters {}", ValueMapper.jsonAsString(accountRequestDTO));
@@ -35,7 +38,7 @@ public class AccountService {
             log.debug("AccountService:create request parameters {}", ValueMapper.jsonAsString(accountRequestDTO));
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while persisting account to database , Exception message {}", ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException("Exception occurred while create a new account!");
+            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
         }
 
         log.info("AccountService::create execution ended...");
@@ -52,7 +55,7 @@ public class AccountService {
             log.debug("AccountService:getAccounts retrieving accounts from database  {}", ValueMapper.jsonAsString(accountResponseDTOS));
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while retrieving accounts from database , Exception message {}", ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException("Exception occurred while fetch accounts from Database");
+            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
         }
 
         log.info("AccountService::getAccountById execution ended...");
@@ -69,7 +72,7 @@ public class AccountService {
             log.debug("AccountService:getAccountById retrieving account from database for id {} {}", accountId, ValueMapper.jsonAsString(accountResponseDTO));
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while retrieving account {} from database , Exception message {}", accountId, ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException("Exception occurred while fetch account from Database " + accountId);
+            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
         }
 
         log.info("AccountService::getAccountById execution ended...");
@@ -93,7 +96,7 @@ public class AccountService {
             log.debug("AccountService:updateAccountById request parameters {}", ValueMapper.jsonAsString(fields));
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while persisting account to database, Exception message {}", ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException("Exception occurred while create a new account!");
+            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
         }
 
         log.info("AccountService::updateAccountById execution ended...");
@@ -109,7 +112,7 @@ public class AccountService {
 
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while deleting account {} from database, Exception message {}", accountId, ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException("Exception occurred while delete account from Database " + accountId);
+            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
         }
 
         log.info("AccountService::deleteAccountById execution ended...");
