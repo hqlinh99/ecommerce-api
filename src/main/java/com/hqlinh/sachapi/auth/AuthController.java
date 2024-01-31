@@ -43,7 +43,6 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> token) {
-        System.out.println(token);
         log.info("AuthController::refresh token with input {}", ValueMapper.jsonAsString(token));
         Auth.AuthenticationResponse authenticationResponse = authService.refreshToken(token.get("refreshToken"));
         APIResponse<Auth.AuthenticationResponse> response = APIResponse

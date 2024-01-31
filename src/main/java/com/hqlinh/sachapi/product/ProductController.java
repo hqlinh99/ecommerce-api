@@ -31,6 +31,7 @@ public class ProductController {
 
     @PostMapping(value = "/product")
     public ResponseEntity<?> createNewProduct(@RequestBody @Valid ProductDTO.ProductRequestDTO productRequestDTO) {
+
         log.info("ProductController::createNewProduct request body: {}", ValueMapper.jsonAsString(productRequestDTO));
         ProductDTO.ProductResponseDTO productResponseDTO = productService.create(productRequestDTO);
         APIResponse<ProductDTO.ProductResponseDTO> response = APIResponse

@@ -2,9 +2,12 @@ package com.hqlinh.sachapi.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
-
-public class Auth {
+@Getter
+@Setter
+public abstract class Auth {
 
     @Getter
     @Setter

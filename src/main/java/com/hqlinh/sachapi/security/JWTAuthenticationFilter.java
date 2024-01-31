@@ -32,7 +32,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final JWTService jwtService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         try {
             String token = request.getHeader("Authorization");
             if (token != null && token.startsWith("Bearer")) {
@@ -51,7 +51,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 response.addHeader("Authorization", "Bearer " + accessToken);
             }
             filterChain.doFilter(request, response);
-        } catch (IOException | ServletException | JWTVerificationException ex) {
+        } catch (JWTVerificationException | UsernameNotFoundException ex) {
             APIResponse<String> res = APIResponse
                     .<String>builder()
                     .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))
@@ -60,7 +60,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(Objects.requireNonNull(ValueMapper.jsonAsString(res)));
-            log.error("{}::handleJWTAuthenticationFilterException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(res));
+            log.error("{}::JWTAuthenticationFilterException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(res));
         }
     }
 }

@@ -10,7 +10,18 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-public class AccountDTO {
+public abstract class AccountDTO {
+    private Long id;
+    @NotBlank(message = "account name shouldn't be NULL OR EMPTY")
+    private String name;
+    @NotBlank(message = "email shouldn't be NULL OR EMPTY")
+    private String email;
+    @NotBlank(message = "password shouldn't be NULL OR EMPTY")
+    private String password;
+    @NotBlank(message = "password shouldn't be NULL OR EMPTY")
+    private String newPassword;
+    private Role role;
+
     @Getter
     @Setter
     @EqualsAndHashCode
@@ -25,22 +36,23 @@ public class AccountDTO {
 
     @Getter
     @Setter
-    @EqualsAndHashCode(callSuper = true)
     @AllArgsConstructor
     @NoArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonIgnoreProperties(value = "password")
-    public static class AccountResponseDTO extends AccountRequestDTO {
+    public static class AccountResponseDTO {
         private long id;
+        private String name;
+        private String email;
+        private Role role;
     }
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class AuthenticationResponse {
-        private String accessToken;
-        private String refreshToken;
+    public static class PasswordRequest {
+        private String password;
+        private String newPassword;
     }
 }
 

@@ -12,8 +12,4 @@ public class SachApiApplication {
         SpringApplication.run(SachApiApplication.class, args);
     }
 
-    @Bean
-    public Validator validator() {
-        return Validation.buildDefaultValidatorFactory().getValidator();
-    }
 }

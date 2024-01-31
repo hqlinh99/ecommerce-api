@@ -1,6 +1,9 @@
 package com.hqlinh.sachapi.account;
 
 import com.hqlinh.sachapi.core.APIResponse;
+import com.hqlinh.sachapi.product.ProductDTO;
+import com.hqlinh.sachapi.util.DTOUtil;
+import com.hqlinh.sachapi.util.ValidationUtil;
 import com.hqlinh.sachapi.util.ValueMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
@@ -15,10 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -26,10 +26,12 @@ import java.util.Set;
 @Slf4j
 public class AccountController {
     private final AccountService accountService;
-    private final Validator validator;
 
     @PostMapping(value = "/account")
-    public ResponseEntity<?> createNewAccount(@RequestBody @Valid AccountDTO.AccountRequestDTO accountRequestDTO) {
+    public ResponseEntity<?> createNewAccount(@RequestBody AccountDTO.AccountRequestDTO accountRequestDTO) throws MethodArgumentNotValidException {
+        //Validate
+        ValidationUtil.validate(accountRequestDTO, AccountDTO.class);
+
         log.info("AccountController::createNewAccount request body: {}", ValueMapper.jsonAsString(accountRequestDTO));
         AccountDTO.AccountResponseDTO accountResponseDTO = accountService.create(accountRequestDTO);
         APIResponse<AccountDTO.AccountResponseDTO> response = APIResponse
@@ -69,22 +71,7 @@ public class AccountController {
     @PatchMapping(value = "/account/{accountId}")
     public ResponseEntity<?> updateAccountById(@PathVariable Long accountId, @RequestBody Map<String, Object> fields) throws MethodArgumentNotValidException {
         //Validate
-        Set<Set<ConstraintViolation<AccountDTO.AccountRequestDTO>>> constraintsSet = new HashSet<>();
-        fields.forEach((String key, Object value) -> constraintsSet.add(validator.validateValue(AccountDTO.AccountRequestDTO.class, key, value)));
-        if (!constraintsSet.isEmpty()) {
-            BindingResult bindingResult = new BeanPropertyBindingResult(fields, "Map<String, Object>");
-            constraintsSet.forEach(constraints -> {
-                constraints.forEach(violation -> {
-                    bindingResult.addError(new FieldError(
-                            "Map<String, Object>",
-                            violation.getPropertyPath().toString(),
-                            violation.getMessage()
-                    ));
-                });
-            });
-            if (bindingResult.hasErrors())
-                throw new MethodArgumentNotValidException(null, bindingResult);
-        }
+        ValidationUtil.validate(fields, AccountDTO.class);
 
         log.info("AccountController::updateAccountById is {}", accountId);
         AccountDTO.AccountResponseDTO accountResponseDTO = accountService.updateAccountById(accountId, fields);
@@ -103,5 +90,13 @@ public class AccountController {
         log.info("AccountController::deleteAccountById is {}", accountId);
         accountService.deleteAccountById(accountId);
         log.info("AccountController::deleteAccountById is ended successfully");
+    }
+
+    @PatchMapping(value = "/account/{accountId}/password")
+    public ResponseEntity<?> changePassword(@PathVariable Long accountId, @RequestBody AccountDTO.PasswordRequest passwordRequest) throws MethodArgumentNotValidException {
+        //Validate
+        ValidationUtil.validate(passwordRequest, AccountDTO.class);
+
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }
