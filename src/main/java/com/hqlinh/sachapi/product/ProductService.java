@@ -27,11 +27,8 @@ public class ProductService {
             log.info("ProductService::create execution started...");
 
             Product product = DTOUtil.map(productRequestDTO, Product.class);
-            log.debug("ProductService:create request parameters {}", ValueMapper.jsonAsString(productRequestDTO));
-
             Product productResult = productRepository.save(product);
             productResponseDTO = DTOUtil.map(productResult, ProductDTO.ProductResponseDTO.class);
-            log.debug("ProductService:create request parameters {}", ValueMapper.jsonAsString(productRequestDTO));
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while persisting product to database , Exception message {}", ex.getMessage());
             throw new ProductException.ProductServiceBusinessException("Exception occurred while create a new product!");
@@ -48,7 +45,6 @@ public class ProductService {
 
             List<Product> productList = productRepository.findAll();
             productResponseDTOS = productList.isEmpty() ? Collections.emptyList() : DTOUtil.mapList(productList, ProductDTO.ProductResponseDTO.class);
-            log.debug("ProductService:getProducts retrieving products from database  {}", ValueMapper.jsonAsString(productResponseDTOS));
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while retrieving products from database , Exception message {}", ex.getMessage());
             throw new ProductException.ProductServiceBusinessException("Exception occurred while fetch products from Database");
@@ -65,7 +61,6 @@ public class ProductService {
 
             Product product = productRepository.findById(productId).orElseThrow(() -> new NoResultException("Product not found with id " + productId));
             productResponseDTO = DTOUtil.map(product, ProductDTO.ProductResponseDTO.class);
-            log.debug("ProductService:getProductById retrieving product from database for id {} {}", productId, ValueMapper.jsonAsString(productResponseDTO));
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while retrieving product {} from database , Exception message {}", productId, ex.getMessage());
             throw new ProductException.ProductServiceBusinessException("Exception occurred while fetch product from Database " + productId);
@@ -80,7 +75,10 @@ public class ProductService {
         try {
             log.info("ProductService::updateProductById execution started...");
 
+            //CHECK EXISTED
             Product existProduct = DTOUtil.map(getProductById(productId), Product.class);
+
+            //EXECUTE
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Product.class, key);
                 field.setAccessible(true);
@@ -89,7 +87,6 @@ public class ProductService {
 
             Product productResult = productRepository.save(DTOUtil.map(existProduct, Product.class));
             productResponseDTO = DTOUtil.map(productResult, ProductDTO.ProductResponseDTO.class);
-            log.debug("ProductService:updateProductById request parameters {}", ValueMapper.jsonAsString(fields));
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while persisting product to database, Exception message {}", ex.getMessage());
             throw new ProductException.ProductServiceBusinessException("Exception occurred while create a new product!");
@@ -99,18 +96,19 @@ public class ProductService {
         return productResponseDTO;
     }
 
-
     //deleteProductById
     public void deleteProductById(Long productId) {
         try {
             log.info("ProductService::deleteProductById execution started...");
 
-            productRepository.delete(DTOUtil.map(getProductById(productId), Product.class));
-            log.debug("ProductService:deleteProductById deleting product from database for id {} ", productId);
+            //CHECK EXIST
+            Product existProduct = DTOUtil.map(getProductById(productId), Product.class);
 
+            //EXECUTE
+            productRepository.delete(existProduct);
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while deleting product {} from database, Exception message {}", productId, ex.getMessage());
-            throw new ProductException.ProductServiceBusinessException("Exception occurred while delete product from Database " + productId);
+            throw new ProductException.ProductServiceBusinessException("Exception occurred while deleting product from Database " + productId);
         }
 
         log.info("ProductService::deleteProductById execution ended...");

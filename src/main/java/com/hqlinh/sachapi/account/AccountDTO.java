@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +16,7 @@ public abstract class AccountDTO {
     @NotBlank(message = "account name shouldn't be NULL OR EMPTY")
     private String name;
     @NotBlank(message = "email shouldn't be NULL OR EMPTY")
+    @Email(message = "invalid email address")
     private String email;
     @NotBlank(message = "password shouldn't be NULL OR EMPTY")
     private String password;
