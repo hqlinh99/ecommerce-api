@@ -48,7 +48,6 @@ public class ProductController {
 
     @GetMapping(value = "/products")
     public ResponseEntity<?> getProducts() {
-        System.out.println(SecurityContextHolder.getContext().getAuthentication());
         List<ProductDTO.ProductResponseDTO> productResponseDTOS = productService.getProducts();
         APIResponse<List<ProductDTO.ProductResponseDTO>> response = APIResponse
                 .<List<ProductDTO.ProductResponseDTO>>builder()

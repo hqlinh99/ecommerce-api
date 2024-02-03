@@ -1,6 +1,7 @@
 package com.hqlinh.sachapi.account;
 
 import com.hqlinh.sachapi.core.APIResponse;
+import com.hqlinh.sachapi.core.CustomException;
 import com.hqlinh.sachapi.product.ProductDTO;
 import com.hqlinh.sachapi.util.DTOUtil;
 import com.hqlinh.sachapi.util.ValidationUtil;
@@ -28,7 +29,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping(value = "/account")
-    public ResponseEntity<?> createNewAccount(@RequestBody AccountDTO.AccountRequestDTO accountRequestDTO) throws MethodArgumentNotValidException {
+    public ResponseEntity<?> createNewAccount(@RequestBody AccountDTO.AccountRequestDTO accountRequestDTO) throws MethodArgumentNotValidException, CustomException.DuplicatedException {
         //Validate
         ValidationUtil.validate(accountRequestDTO, AccountDTO.class);
 

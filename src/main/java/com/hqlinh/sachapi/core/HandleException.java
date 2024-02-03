@@ -4,14 +4,37 @@ package com.hqlinh.sachapi.core;
 import com.hqlinh.sachapi.account.AccountException;
 import com.hqlinh.sachapi.product.ProductException;
 import com.hqlinh.sachapi.util.ValueMapper;
+import jakarta.persistence.NoResultException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.ConversionNotSupportedException;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.method.MethodValidationException;
+import org.springframework.web.ErrorResponseException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,8 +45,28 @@ import java.util.List;
 @RestControllerAdvice
 public class HandleException {
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, SQLException.class, HttpRequestMethodNotSupportedException.class, IllegalArgumentException.class})
-    public ResponseEntity<APIResponse> handleHttpMessageNotReadableException(Exception ex) {
+    @ExceptionHandler({
+            HttpRequestMethodNotSupportedException.class,
+            HttpMediaTypeNotSupportedException.class,
+            HttpMediaTypeNotAcceptableException.class,
+            MissingPathVariableException.class,
+            MissingServletRequestParameterException.class,
+            MissingServletRequestPartException.class,
+            ServletRequestBindingException.class,
+            HandlerMethodValidationException.class,
+            NoHandlerFoundException.class,
+            NoResourceFoundException.class,
+            AsyncRequestTimeoutException.class,
+            ErrorResponseException.class,
+            MaxUploadSizeExceededException.class,
+            ConversionNotSupportedException.class,
+            TypeMismatchException.class,
+            HttpMessageNotReadableException.class,
+            HttpMessageNotWritableException.class,
+            MethodValidationException.class,
+            BindException.class
+    })
+    public ResponseEntity<?> handleException(Exception ex) {
         APIResponse<String> response = APIResponse
                 .<String>builder()
                 .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))
@@ -34,7 +77,7 @@ public class HandleException {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<APIResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<ErrorResponse> errors = new ArrayList<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> {
@@ -49,30 +92,37 @@ public class HandleException {
         log.error("{}::handleMethodArgumentNotValidException catch error: {}", ex.getObjectName(), ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
+//
     @ExceptionHandler({
             ProductException.ProductServiceBusinessException.class,
             AccountException.AccountServiceBusinessException.class})
-    public ResponseEntity<APIResponse> handleProductServiceBusinessException(Exception ex) {
+    public ResponseEntity<APIResponse> handleServiceBusinessException(Exception ex) {
         APIResponse<String> response = APIResponse
                 .<String>builder()
                 .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))
                 .status("FAILED")
                 .build();
-        log.error("{}::handleProductServiceBusinessException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
+        log.error("{}::{} catch error: {}", ex.getClass().getSimpleName(), ex.getCause().getMessage(),ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
-    @ExceptionHandler({
-            ProductException.ProductNotFoundException.class,
-            AccountException.AccountNotFoundException.class})
-    public ResponseEntity<APIResponse> handleProductNotFoundException(Exception ex) {
+    @ExceptionHandler(NoResultException.class)
+    public ResponseEntity<APIResponse> handleNoResultException(Exception ex) {
         APIResponse<String> response = APIResponse
                 .<String>builder()
                 .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))
                 .status("FAILED")
                 .build();
-        log.error("{}::handleProductNotFoundException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
+        log.error("{}::handleNoResultException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(CustomException.DuplicatedException.class)
+    public ResponseEntity<APIResponse> handleDuplicatedException(Exception ex) {
+        APIResponse<String> response = APIResponse
+                .<String>builder()
+                .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))
+                .status("FAILED")
+                .build();
+        log.error("{}::handleDuplicatedException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 }

@@ -6,10 +6,4 @@ public class ProductException {
             super(message);
         }
     }
-
-    public static class ProductNotFoundException extends RuntimeException {
-        public ProductNotFoundException(String message) {
-            super(message);
-        }
-    }
 }

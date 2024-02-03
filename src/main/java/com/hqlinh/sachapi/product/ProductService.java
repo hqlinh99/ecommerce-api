@@ -2,9 +2,12 @@ package com.hqlinh.sachapi.product;
 
 import com.hqlinh.sachapi.util.DTOUtil;
 import com.hqlinh.sachapi.util.ValueMapper;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.NoResultException;
 import jakarta.validation.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -60,7 +63,7 @@ public class ProductService {
         try {
             log.info("ProductService::getProductById execution started...");
 
-            Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException("Product not found with id " + productId));
+            Product product = productRepository.findById(productId).orElseThrow(() -> new NoResultException("Product not found with id " + productId));
             productResponseDTO = DTOUtil.map(product, ProductDTO.ProductResponseDTO.class);
             log.debug("ProductService:getProductById retrieving product from database for id {} {}", productId, ValueMapper.jsonAsString(productResponseDTO));
         } catch (ProductException.ProductServiceBusinessException ex) {

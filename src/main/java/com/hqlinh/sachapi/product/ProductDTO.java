@@ -32,6 +32,7 @@ public abstract class ProductDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ProductRequestDTO {
+        @NotBlank(message = "product name shouldn't be NULL OR EMPTY")
         private String name;
         private String description;
         private String productType;
