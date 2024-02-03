@@ -2,6 +2,8 @@ package com.hqlinh.sachapi.core;
 
 
 import com.hqlinh.sachapi.account.AccountException;
+import com.hqlinh.sachapi.file.FileUpload;
+import com.hqlinh.sachapi.file.FileUploadException;
 import com.hqlinh.sachapi.product.ProductException;
 import com.hqlinh.sachapi.util.ValueMapper;
 import jakarta.persistence.NoResultException;
@@ -31,6 +33,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -64,7 +67,8 @@ public class HandleException {
             HttpMessageNotReadableException.class,
             HttpMessageNotWritableException.class,
             MethodValidationException.class,
-            BindException.class
+            BindException.class,
+            MultipartException.class
     })
     public ResponseEntity<?> handleException(Exception ex) {
         APIResponse<String> response = APIResponse
@@ -92,19 +96,23 @@ public class HandleException {
         log.error("{}::handleMethodArgumentNotValidException catch error: {}", ex.getObjectName(), ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-//
+
+    //
     @ExceptionHandler({
             ProductException.ProductServiceBusinessException.class,
-            AccountException.AccountServiceBusinessException.class})
+            AccountException.AccountServiceBusinessException.class,
+            FileUploadException.FileUploadServiceBusinessException.class
+    })
     public ResponseEntity<APIResponse> handleServiceBusinessException(Exception ex) {
         APIResponse<String> response = APIResponse
                 .<String>builder()
                 .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))
                 .status("FAILED")
                 .build();
-        log.error("{}::{} catch error: {}", ex.getClass().getSimpleName(), ex.getCause().getMessage(),ValueMapper.jsonAsString(response));
+        log.error("{}::{} catch error: {}", ex.getClass().getSimpleName(), ex.getCause().getMessage(), ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(NoResultException.class)
     public ResponseEntity<APIResponse> handleNoResultException(Exception ex) {
         APIResponse<String> response = APIResponse
@@ -115,6 +123,7 @@ public class HandleException {
         log.error("{}::handleNoResultException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(CustomException.DuplicatedException.class)
     public ResponseEntity<APIResponse> handleDuplicatedException(Exception ex) {
         APIResponse<String> response = APIResponse
