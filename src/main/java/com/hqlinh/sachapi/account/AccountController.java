@@ -2,26 +2,17 @@ package com.hqlinh.sachapi.account;
 
 import com.hqlinh.sachapi.core.APIResponse;
 import com.hqlinh.sachapi.core.CustomException;
-import com.hqlinh.sachapi.product.ProductDTO;
-import com.hqlinh.sachapi.util.DTOUtil;
 import com.hqlinh.sachapi.util.ValidationUtil;
 import com.hqlinh.sachapi.util.ValueMapper;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.CredentialException;
 import java.util.*;
-
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -95,7 +86,7 @@ public class AccountController {
     }
 
     @PatchMapping(value = "/account/{accountId}/password")
-    public ResponseEntity<?> changePassword(@PathVariable Long accountId, @RequestBody AccountDTO.PasswordRequest passwordRequest) throws MethodArgumentNotValidException, AccountException.InvalidPasswordException {
+    public ResponseEntity<?> changePassword(@PathVariable Long accountId, @RequestBody AccountDTO.PasswordRequest passwordRequest) throws MethodArgumentNotValidException, AccountException.PasswordNoMatchException {
         //Validate
         ValidationUtil.validate(passwordRequest, AccountDTO.class);
 

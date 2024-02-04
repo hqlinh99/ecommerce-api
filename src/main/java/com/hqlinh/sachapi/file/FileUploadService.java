@@ -114,7 +114,6 @@ public class FileUploadService {
             //CHECK EXISTED
             FileUpload existFileUpload = DTOUtil.map(getFileUploadById(fileUploadId), FileUpload.class);
 
-
             //EXECUTE
             if (existFileUpload.getName().equals(fileName.getName()))
                 fileUploadResponseDTO = DTOUtil.map(existFileUpload, FileUploadDTO.FileUploadResponseDTO.class);

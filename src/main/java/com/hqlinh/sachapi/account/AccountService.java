@@ -2,16 +2,14 @@ package com.hqlinh.sachapi.account;
 
 import com.hqlinh.sachapi.core.CustomException;
 import com.hqlinh.sachapi.util.DTOUtil;
-import com.hqlinh.sachapi.util.ValueMapper;
 import jakarta.persistence.NoResultException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
-import javax.security.auth.login.CredentialException;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -123,7 +121,7 @@ public class AccountService {
         log.info("AccountService::deleteAccountById execution ended...");
     }
 
-    public AccountDTO.AccountResponseDTO changePassword(Long accountId, AccountDTO.PasswordRequest passwordRequest) throws AccountException.InvalidPasswordException {
+    public AccountDTO.AccountResponseDTO changePassword(Long accountId, AccountDTO.PasswordRequest passwordRequest) throws AccountException.PasswordNoMatchException {
         AccountDTO.AccountResponseDTO accountResponseDTO;
         try {
             log.info("AccountService::updateAccountById execution started...");
@@ -132,7 +130,7 @@ public class AccountService {
 
             //CHECK OLD PASSWORD
             if (!passwordEncoder.matches(passwordRequest.getPassword(), existAccount.getPassword()))
-                throw new AccountException.InvalidPasswordException("Incorrect old password request");
+                throw new AccountException.PasswordNoMatchException("Incorrect old password request");
 
             //EXECUTE
             existAccount.setPassword(passwordEncoder.encode(passwordRequest.getNewPassword()));

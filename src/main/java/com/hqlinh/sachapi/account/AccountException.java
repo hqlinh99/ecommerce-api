@@ -24,12 +24,12 @@ public class AccountException {
         }
     }
 
-    public static class InvalidPasswordException extends AuthenticationException {
-        public InvalidPasswordException(String explanation) {
+    public static class PasswordNoMatchException extends AuthenticationException {
+        public PasswordNoMatchException(String explanation) {
             super(explanation);
         }
 
-        public InvalidPasswordException(String msg, Throwable cause) {
+        public PasswordNoMatchException(String msg, Throwable cause) {
             super(msg, cause);
         }
     }

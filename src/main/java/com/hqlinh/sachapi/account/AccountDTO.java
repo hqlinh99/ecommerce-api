@@ -13,8 +13,10 @@ import lombok.*;
 
 public abstract class AccountDTO {
     private Long id;
-    @NotBlank(message = "account name shouldn't be NULL OR EMPTY")
-    private String name;
+    @NotBlank(message = "account First Name shouldn't be NULL OR EMPTY")
+    private String firstName;
+    @NotBlank(message = "account Last Name shouldn't be NULL OR EMPTY")
+    private String lastName;
     @NotBlank(message = "email shouldn't be NULL OR EMPTY")
     @Email(message = "invalid email address")
     private String email;
@@ -30,7 +32,8 @@ public abstract class AccountDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class AccountRequestDTO {
-        private String name;
+        private String firstName;
+        private String lastName;
         private String email;
         private String password;
         private Role role;
@@ -43,7 +46,8 @@ public abstract class AccountDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class AccountResponseDTO {
         private long id;
-        private String name;
+        private String firstName;
+        private String lastName;
         private String email;
         private Role role;
     }
