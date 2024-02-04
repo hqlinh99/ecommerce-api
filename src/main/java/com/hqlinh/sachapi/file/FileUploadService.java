@@ -1,6 +1,7 @@
 package com.hqlinh.sachapi.file;
 
 import com.hqlinh.sachapi.util.DTOUtil;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -51,8 +54,10 @@ public class FileUploadService {
             fileUpload.setContentType(multipartFile.getContentType());
             fileUpload.setSize(multipartFile.getSize());
             fileUpload.setUrl(UPLOAD_DIR + "/" + fileName);
-            BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
-            fileUpload.setDimension(new Dimension(bufferedImage.getWidth(), bufferedImage.getHeight()));
+            if (multipartFile.getContentType().startsWith("image/")) {
+                BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
+                fileUpload.setDimension(new Dimension(bufferedImage.getWidth(), bufferedImage.getHeight()));
+            }
 
             //CHECK DIRECTORY EXISTED
             File directory = new File(System.getProperty("user.dir") + UPLOAD_DIR);
@@ -74,37 +79,36 @@ public class FileUploadService {
         return fileUploadResponseDTO;
     }
 
-//    public List<FileUploadDTO.ProductResponseDTO> getProducts() {
-//        List<FileUploadDTO.ProductResponseDTO> productResponseDTOS;
-//        try {
-//            log.info("ProductService::getProducts execution started...");
-//
-//            List<FileUpload> productList = productRepository.findAll();
-//            productResponseDTOS = productList.isEmpty() ? Collections.emptyList() : DTOUtil.mapList(productList, FileUploadDTO.ProductResponseDTO.class);
-//        } catch (FileException.ProductServiceBusinessException ex) {
-//            log.error("Exception occurred while retrieving products from database , Exception message {}", ex.getMessage());
-//            throw new FileException.ProductServiceBusinessException("Exception occurred while fetch products from Database");
-//        }
-//
-//        log.info("ProductService::getProductById execution ended...");
-//        return productResponseDTOS;
-//    }
-//
-//    public FileUploadDTO.ProductResponseDTO getProductById(Long productId) {
-//        FileUploadDTO.ProductResponseDTO productResponseDTO;
-//        try {
-//            log.info("ProductService::getProductById execution started...");
-//
-//            FileUpload product = productRepository.findById(productId).orElseThrow(() -> new NoResultException("Product not found with id " + productId));
-//            productResponseDTO = DTOUtil.map(product, FileUploadDTO.ProductResponseDTO.class);
-//        } catch (FileException.ProductServiceBusinessException ex) {
-//            log.error("Exception occurred while retrieving product {} from database , Exception message {}", productId, ex.getMessage());
-//            throw new FileException.ProductServiceBusinessException("Exception occurred while fetch product from Database " + productId);
-//        }
-//
-//        log.info("ProductService::getProductById execution ended...");
-//        return productResponseDTO;
-//    }
+    public List<FileUploadDTO.FileUploadResponseDTO> getFileUploads() {
+        List<FileUploadDTO.FileUploadResponseDTO> fileUploadResponseDTOS;
+        try {
+            log.info("FileUploadService::getFileUploads execution started...");
+
+            List<FileUpload> fileUploadList = fileUploadRepository.findAll();
+            fileUploadResponseDTOS = fileUploadList.isEmpty() ? Collections.emptyList() : DTOUtil.mapList(fileUploadList, FileUploadDTO.FileUploadResponseDTO.class);
+        } catch (FileUploadException.FileUploadServiceBusinessException ex) {
+            log.error("Exception occurred while retrieving fileUploads from database , Exception message {}", ex.getMessage());
+            throw new FileUploadException.FileUploadServiceBusinessException("Exception occurred while fetching fileUploads from Database");
+        }
+
+        log.info("ProductService::getProductById execution ended...");
+        return fileUploadResponseDTOS;
+    }
+    public FileUploadDTO.FileUploadResponseDTO getFileUploadById(Long fileUploadId) {
+        FileUploadDTO.FileUploadResponseDTO fileUploadResponseDTO;
+        try {
+            log.info("FileUploadService::getFileUploadById execution started...");
+
+            FileUpload product = fileUploadRepository.findById(fileUploadId).orElseThrow(() -> new NoResultException("FileUpload not found with id " + fileUploadId));
+            fileUploadResponseDTO = DTOUtil.map(product, FileUploadDTO.FileUploadResponseDTO.class);
+        } catch (FileUploadException.FileUploadServiceBusinessException ex) {
+            log.error("Exception occurred while retrieving fileUpload {} from database , Exception message {}", fileUploadId, ex.getMessage());
+            throw new FileUploadException.FileUploadServiceBusinessException("Exception occurred while fetch fileUpload from Database " + fileUploadId);
+        }
+
+        log.info("FileUploadService::getFileUploadById execution ended...");
+        return fileUploadResponseDTO;
+    }
 //
 //    public FileUploadDTO.ProductResponseDTO updateProductById(Long productId, Map<String, Object> fields) {
 //        FileUploadDTO.ProductResponseDTO productResponseDTO;

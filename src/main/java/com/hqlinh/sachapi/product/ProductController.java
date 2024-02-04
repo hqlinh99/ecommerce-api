@@ -37,8 +37,8 @@ public class ProductController {
 
         log.info("ProductController::createNewProduct request body: {}", ValueMapper.jsonAsString(productRequestDTO));
         ProductDTO.ProductResponseDTO productResponseDTO = productService.create(productRequestDTO);
-        APIResponse<ProductDTO.ProductResponseDTO> response = APIResponse
-                .<ProductDTO.ProductResponseDTO>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(productResponseDTO)
                 .build();
@@ -49,8 +49,8 @@ public class ProductController {
     @GetMapping(value = "/products")
     public ResponseEntity<?> getProducts() {
         List<ProductDTO.ProductResponseDTO> productResponseDTOS = productService.getProducts();
-        APIResponse<List<ProductDTO.ProductResponseDTO>> response = APIResponse
-                .<List<ProductDTO.ProductResponseDTO>>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(productResponseDTOS)
                 .build();
@@ -62,8 +62,8 @@ public class ProductController {
     public ResponseEntity<?> getProductById(@PathVariable Long productId) {
         log.info("ProductController::getProductById is {}", productId);
         ProductDTO.ProductResponseDTO productResponseDTO = productService.getProductById(productId);
-        APIResponse<ProductDTO.ProductResponseDTO> response = APIResponse
-                .<ProductDTO.ProductResponseDTO>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(productResponseDTO)
                 .build();
@@ -78,8 +78,8 @@ public class ProductController {
 
         log.info("ProductController::updateProductById is {}", productId);
         ProductDTO.ProductResponseDTO productResponseDTO = productService.updateProductById(productId, fields);
-        APIResponse<ProductDTO.ProductResponseDTO> response = APIResponse
-                .<ProductDTO.ProductResponseDTO>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(productResponseDTO)
                 .build();

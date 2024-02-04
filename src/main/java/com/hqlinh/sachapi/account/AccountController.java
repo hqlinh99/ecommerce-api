@@ -19,6 +19,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.login.CredentialException;
 import java.util.*;
 
 @RestController
@@ -35,8 +36,8 @@ public class AccountController {
 
         log.info("AccountController::createNewAccount request body: {}", ValueMapper.jsonAsString(accountRequestDTO));
         AccountDTO.AccountResponseDTO accountResponseDTO = accountService.create(accountRequestDTO);
-        APIResponse<AccountDTO.AccountResponseDTO> response = APIResponse
-                .<AccountDTO.AccountResponseDTO>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(accountResponseDTO)
                 .build();
@@ -47,8 +48,8 @@ public class AccountController {
     @GetMapping(value = "/accounts")
     public ResponseEntity<?> getAccounts() {
         List<AccountDTO.AccountResponseDTO> accountResponseDTOS = accountService.getAccounts();
-        APIResponse<List<AccountDTO.AccountResponseDTO>> response = APIResponse
-                .<List<AccountDTO.AccountResponseDTO>>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(accountResponseDTOS)
                 .build();
@@ -60,8 +61,8 @@ public class AccountController {
     public ResponseEntity<?> getAccountById(@PathVariable Long accountId) {
         log.info("AccountController::getAccountById is {}", accountId);
         AccountDTO.AccountResponseDTO accountResponseDTO = accountService.getAccountById(accountId);
-        APIResponse<AccountDTO.AccountResponseDTO> response = APIResponse
-                .<AccountDTO.AccountResponseDTO>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(accountResponseDTO)
                 .build();
@@ -76,8 +77,8 @@ public class AccountController {
 
         log.info("AccountController::updateAccountById is {}", accountId);
         AccountDTO.AccountResponseDTO accountResponseDTO = accountService.updateAccountById(accountId, fields);
-        APIResponse<AccountDTO.AccountResponseDTO> response = APIResponse
-                .<AccountDTO.AccountResponseDTO>builder()
+        APIResponse<?> response = APIResponse
+                .builder()
                 .status("SUCCESS")
                 .result(accountResponseDTO)
                 .build();
@@ -94,10 +95,18 @@ public class AccountController {
     }
 
     @PatchMapping(value = "/account/{accountId}/password")
-    public ResponseEntity<?> changePassword(@PathVariable Long accountId, @RequestBody AccountDTO.PasswordRequest passwordRequest) throws MethodArgumentNotValidException {
+    public ResponseEntity<?> changePassword(@PathVariable Long accountId, @RequestBody AccountDTO.PasswordRequest passwordRequest) throws MethodArgumentNotValidException, CredentialException {
         //Validate
         ValidationUtil.validate(passwordRequest, AccountDTO.class);
 
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        log.info("AccountController::changePassword is {}", accountId);
+        AccountDTO.AccountResponseDTO accountResponseDTO = accountService.changePassword(accountId, passwordRequest);
+        APIResponse<?> response = APIResponse
+                .builder()
+                .status("SUCCESS")
+                .result(accountResponseDTO)
+                .build();
+        log.info("AccountController::changePassword response: {}", ValueMapper.jsonAsString(response));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

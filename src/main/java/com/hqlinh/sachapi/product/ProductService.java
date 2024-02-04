@@ -85,7 +85,7 @@ public class ProductService {
                 ReflectionUtils.setField(field, existProduct, value);
             });
 
-            Product productResult = productRepository.save(DTOUtil.map(existProduct, Product.class));
+            Product productResult = productRepository.save(existProduct);
             productResponseDTO = DTOUtil.map(productResult, ProductDTO.ProductResponseDTO.class);
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while persisting product to database, Exception message {}", ex.getMessage());

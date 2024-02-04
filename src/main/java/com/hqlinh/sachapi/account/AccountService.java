@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
+import javax.security.auth.login.CredentialException;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +41,7 @@ public class AccountService {
             accountResponseDTO = DTOUtil.map(accountResult, AccountDTO.AccountResponseDTO.class);
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while persisting account to database, Exception message {}", ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException("Exception occurred while persisting account to database", ex);
+            throw ex;
         }
 
 
@@ -57,7 +58,7 @@ public class AccountService {
             accountResponseDTOS = accountList.isEmpty() ? Collections.emptyList() : DTOUtil.mapList(accountList, AccountDTO.AccountResponseDTO.class);
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while retrieving accounts from database , Exception message {}", ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
+            throw ex;
         }
 
         log.info("AccountService::getAccounts execution ended...");
@@ -73,7 +74,7 @@ public class AccountService {
             accountResponseDTO = DTOUtil.map(account, AccountDTO.AccountResponseDTO.class);
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while retrieving account {} from database , Exception message {}", accountId, ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
+            throw ex;
         }
 
         log.info("AccountService::getAccountById execution ended...");
@@ -94,11 +95,11 @@ public class AccountService {
                 ReflectionUtils.setField(field, existAccount, value);
             });
 
-            Account accountResult = accountRepository.save(DTOUtil.map(existAccount, Account.class));
+            Account accountResult = accountRepository.save(existAccount);
             accountResponseDTO = DTOUtil.map(accountResult, AccountDTO.AccountResponseDTO.class);
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while persisting account to database, Exception message {}", ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
+            throw ex;
         }
 
         log.info("AccountService::updateAccountById execution ended...");
@@ -116,9 +117,33 @@ public class AccountService {
             accountRepository.delete(existAccount);
         } catch (AccountException.AccountServiceBusinessException ex) {
             log.error("Exception occurred while deleting account {} from database, Exception message {}", accountId, ex.getMessage());
-            throw new AccountException.AccountServiceBusinessException(ex.getMessage());
+            throw ex;
         }
 
         log.info("AccountService::deleteAccountById execution ended...");
+    }
+
+    public AccountDTO.AccountResponseDTO changePassword(Long accountId, AccountDTO.PasswordRequest passwordRequest) throws CredentialException {
+        AccountDTO.AccountResponseDTO accountResponseDTO;
+        try {
+            log.info("AccountService::updateAccountById execution started...");
+            //CHECK EXISTED
+            Account existAccount = DTOUtil.map(getAccountById(accountId), Account.class);
+
+            //EXECUTE
+            if (!passwordEncoder.matches(passwordRequest.getPassword(), existAccount.getPassword()))
+                throw new CredentialException("Old password not match!");
+
+            existAccount.setPassword(passwordEncoder.encode(passwordRequest.getNewPassword()));
+
+            Account accountResult = accountRepository.save(existAccount);
+            accountResponseDTO = DTOUtil.map(accountResult, AccountDTO.AccountResponseDTO.class);
+        } catch (AccountException.AccountServiceBusinessException ex) {
+            log.error("Exception occurred while persisting account to database, Exception message {}", ex.getMessage());
+            throw ex;
+        }
+
+        log.info("AccountService::updateAccountById execution ended...");
+        return accountResponseDTO;
     }
 }
