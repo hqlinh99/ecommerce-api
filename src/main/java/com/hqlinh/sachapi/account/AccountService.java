@@ -6,6 +6,7 @@ import com.hqlinh.sachapi.util.ValueMapper;
 import jakarta.persistence.NoResultException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -22,7 +23,6 @@ import java.util.Map;
 public class AccountService {
     private IAccountRepository accountRepository;
     private PasswordEncoder passwordEncoder;
-
     public AccountDTO.AccountResponseDTO create(AccountDTO.AccountRequestDTO accountRequestDTO) throws CustomException.DuplicatedException {
         AccountDTO.AccountResponseDTO accountResponseDTO;
         try {
@@ -123,19 +123,19 @@ public class AccountService {
         log.info("AccountService::deleteAccountById execution ended...");
     }
 
-    public AccountDTO.AccountResponseDTO changePassword(Long accountId, AccountDTO.PasswordRequest passwordRequest) throws CredentialException {
+    public AccountDTO.AccountResponseDTO changePassword(Long accountId, AccountDTO.PasswordRequest passwordRequest) throws AccountException.InvalidPasswordException {
         AccountDTO.AccountResponseDTO accountResponseDTO;
         try {
             log.info("AccountService::updateAccountById execution started...");
             //CHECK EXISTED
-            Account existAccount = DTOUtil.map(getAccountById(accountId), Account.class);
+            Account existAccount = accountRepository.findById(accountId).orElseThrow(() -> new NoResultException("Account not found with id " + accountId));
+
+            //CHECK OLD PASSWORD
+            if (!passwordEncoder.matches(passwordRequest.getPassword(), existAccount.getPassword()))
+                throw new AccountException.InvalidPasswordException("Incorrect old password request");
 
             //EXECUTE
-            if (!passwordEncoder.matches(passwordRequest.getPassword(), existAccount.getPassword()))
-                throw new CredentialException("Old password not match!");
-
             existAccount.setPassword(passwordEncoder.encode(passwordRequest.getNewPassword()));
-
             Account accountResult = accountRepository.save(existAccount);
             accountResponseDTO = DTOUtil.map(accountResult, AccountDTO.AccountResponseDTO.class);
         } catch (AccountException.AccountServiceBusinessException ex) {

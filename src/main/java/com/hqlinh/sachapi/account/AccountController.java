@@ -95,7 +95,7 @@ public class AccountController {
     }
 
     @PatchMapping(value = "/account/{accountId}/password")
-    public ResponseEntity<?> changePassword(@PathVariable Long accountId, @RequestBody AccountDTO.PasswordRequest passwordRequest) throws MethodArgumentNotValidException, CredentialException {
+    public ResponseEntity<?> changePassword(@PathVariable Long accountId, @RequestBody AccountDTO.PasswordRequest passwordRequest) throws MethodArgumentNotValidException, AccountException.InvalidPasswordException {
         //Validate
         ValidationUtil.validate(passwordRequest, AccountDTO.class);
 

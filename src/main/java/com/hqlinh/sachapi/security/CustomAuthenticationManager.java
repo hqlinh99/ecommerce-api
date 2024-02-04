@@ -1,5 +1,6 @@
 package com.hqlinh.sachapi.security;
 
+import com.hqlinh.sachapi.account.AccountException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,7 +26,7 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
         String password = authentication.getCredentials().toString();
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
+            throw new AccountException.InvalidPasswordException("Invalid password");
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
