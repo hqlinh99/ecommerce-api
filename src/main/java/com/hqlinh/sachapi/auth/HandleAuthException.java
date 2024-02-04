@@ -25,6 +25,6 @@ public class HandleAuthException {
                 .status("FAILED")
                 .build();
         log.error("{}::handleHandleAuthException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 }
