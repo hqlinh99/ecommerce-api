@@ -31,7 +31,7 @@ public class ProductService {
             productResponseDTO = DTOUtil.map(productResult, ProductDTO.ProductResponseDTO.class);
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while persisting product to database , Exception message {}", ex.getMessage());
-            throw new ProductException.ProductServiceBusinessException("Exception occurred while create a new product!");
+            throw ex;
         }
 
         log.info("ProductService::create execution ended...");
@@ -47,7 +47,7 @@ public class ProductService {
             productResponseDTOS = productList.isEmpty() ? Collections.emptyList() : DTOUtil.mapList(productList, ProductDTO.ProductResponseDTO.class);
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while retrieving products from database , Exception message {}", ex.getMessage());
-            throw new ProductException.ProductServiceBusinessException("Exception occurred while fetch products from Database");
+            throw ex;
         }
 
         log.info("ProductService::getProductById execution ended...");
@@ -63,7 +63,7 @@ public class ProductService {
             productResponseDTO = DTOUtil.map(product, ProductDTO.ProductResponseDTO.class);
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while retrieving product {} from database , Exception message {}", productId, ex.getMessage());
-            throw new ProductException.ProductServiceBusinessException("Exception occurred while fetch product from Database " + productId);
+            throw ex;
         }
 
         log.info("ProductService::getProductById execution ended...");
@@ -89,7 +89,7 @@ public class ProductService {
             productResponseDTO = DTOUtil.map(productResult, ProductDTO.ProductResponseDTO.class);
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while persisting product to database, Exception message {}", ex.getMessage());
-            throw new ProductException.ProductServiceBusinessException("Exception occurred while create a new product!");
+            throw ex;
         }
 
         log.info("ProductService::updateProductById execution ended...");
@@ -108,7 +108,7 @@ public class ProductService {
             productRepository.delete(existProduct);
         } catch (ProductException.ProductServiceBusinessException ex) {
             log.error("Exception occurred while deleting product {} from database, Exception message {}", productId, ex.getMessage());
-            throw new ProductException.ProductServiceBusinessException("Exception occurred while deleting product from Database " + productId);
+            throw ex;
         }
 
         log.info("ProductService::deleteProductById execution ended...");

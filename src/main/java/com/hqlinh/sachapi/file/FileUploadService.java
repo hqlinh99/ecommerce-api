@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +29,8 @@ public class FileUploadService {
 
     @Value("${application.upload-dir}")
     private String UPLOAD_DIR;
+    @Value("${spring.mvc.static-path-pattern}")
+    private String PATH;
 
     public FileUploadDTO.FileUploadResponseDTO uploadSingleFile(MultipartFile multipartFile) throws IOException {
         FileUploadDTO.FileUploadResponseDTO fileUploadResponseDTO;
@@ -53,7 +56,7 @@ public class FileUploadService {
             fileUpload.setName(fileName);
             fileUpload.setContentType(multipartFile.getContentType());
             fileUpload.setSize(multipartFile.getSize());
-            fileUpload.setUrl(UPLOAD_DIR + "/" + fileName);
+            fileUpload.setUrl(PATH.replace("**", "") + fileName);
             if (multipartFile.getContentType().startsWith("image/")) {
                 BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
                 fileUpload.setDimension(new Dimension(bufferedImage.getWidth(), bufferedImage.getHeight()));
@@ -72,7 +75,7 @@ public class FileUploadService {
             fileUploadResponseDTO = DTOUtil.map(fileResult, FileUploadDTO.FileUploadResponseDTO.class);
         } catch (FileUploadException.FileUploadServiceBusinessException ex) {
             log.error("Exception occurred while persisting a new fileUpload to database , Exception message {}", ex.getMessage());
-            throw new FileUploadException.FileUploadServiceBusinessException("Exception occurred while persisting a new fileUpload!");
+            throw ex;
         }
 
         log.info("FileUploadService::create execution ended...");
@@ -88,69 +91,71 @@ public class FileUploadService {
             fileUploadResponseDTOS = fileUploadList.isEmpty() ? Collections.emptyList() : DTOUtil.mapList(fileUploadList, FileUploadDTO.FileUploadResponseDTO.class);
         } catch (FileUploadException.FileUploadServiceBusinessException ex) {
             log.error("Exception occurred while retrieving fileUploads from database , Exception message {}", ex.getMessage());
-            throw new FileUploadException.FileUploadServiceBusinessException("Exception occurred while fetching fileUploads from Database");
+            throw ex;
         }
 
-        log.info("ProductService::getProductById execution ended...");
+        log.info("FileUploadService::getFileUploadById execution ended...");
         return fileUploadResponseDTOS;
     }
+
     public FileUploadDTO.FileUploadResponseDTO getFileUploadById(Long fileUploadId) {
         FileUploadDTO.FileUploadResponseDTO fileUploadResponseDTO;
         try {
             log.info("FileUploadService::getFileUploadById execution started...");
 
-            FileUpload product = fileUploadRepository.findById(fileUploadId).orElseThrow(() -> new NoResultException("FileUpload not found with id " + fileUploadId));
-            fileUploadResponseDTO = DTOUtil.map(product, FileUploadDTO.FileUploadResponseDTO.class);
+            FileUpload fileUpload = fileUploadRepository.findById(fileUploadId).orElseThrow(() -> new NoResultException("FileUpload not found with id " + fileUploadId));
+            fileUploadResponseDTO = DTOUtil.map(fileUpload, FileUploadDTO.FileUploadResponseDTO.class);
         } catch (FileUploadException.FileUploadServiceBusinessException ex) {
             log.error("Exception occurred while retrieving fileUpload {} from database , Exception message {}", fileUploadId, ex.getMessage());
-            throw new FileUploadException.FileUploadServiceBusinessException("Exception occurred while fetch fileUpload from Database " + fileUploadId);
+            throw ex;
         }
 
         log.info("FileUploadService::getFileUploadById execution ended...");
         return fileUploadResponseDTO;
     }
 //
-//    public FileUploadDTO.ProductResponseDTO updateProductById(Long productId, Map<String, Object> fields) {
-//        FileUploadDTO.ProductResponseDTO productResponseDTO;
+//    public FileUploadDTO.FileUploadResponseDTO updateFileUploadById(Long fileUploadId, Map<String, Object> fields) {
+//        FileUploadDTO.FileUploadResponseDTO fileUploadResponseDTO;
 //        try {
-//            log.info("ProductService::updateProductById execution started...");
+//            log.info("FileUploadService::updateFileUploadById execution started...");
 //
 //            //CHECK EXISTED
-//            FileUpload existProduct = DTOUtil.map(getProductById(productId), FileUpload.class);
+//            FileUpload existFileUpload = DTOUtil.map(getFileUploadById(fileUploadId), FileUpload.class);
 //
 //            //EXECUTE
 //            fields.forEach((key, value) -> {
 //                Field field = ReflectionUtils.findField(FileUpload.class, key);
 //                field.setAccessible(true);
-//                ReflectionUtils.setField(field, existProduct, value);
+//                ReflectionUtils.setField(field, existFileUpload, value);
 //            });
 //
-//            FileUpload productResult = productRepository.save(DTOUtil.map(existProduct, FileUpload.class));
-//            productResponseDTO = DTOUtil.map(productResult, FileUploadDTO.ProductResponseDTO.class);
-//        } catch (FileException.ProductServiceBusinessException ex) {
-//            log.error("Exception occurred while persisting product to database, Exception message {}", ex.getMessage());
-//            throw new FileException.ProductServiceBusinessException("Exception occurred while create a new product!");
+//            FileUpload fileUploadResult = fileUploadRepository.save(DTOUtil.map(existFileUpload, FileUpload.class));
+//            fileUploadResponseDTO = DTOUtil.map(fileUploadResult, FileUploadDTO.FileUploadResponseDTO.class);
+//        } catch (FileException.FileUploadServiceBusinessException ex) {
+//            log.error("Exception occurred while persisting fileUpload to database, Exception message {}", ex.getMessage());
+//            throw ex;
 //        }
 //
-//        log.info("ProductService::updateProductById execution ended...");
-//        return productResponseDTO;
+//        log.info("FileUploadService::updateFileUploadById execution ended...");
+//        return fileUploadResponseDTO;
 //    }
-//
-//    //deleteProductById
-//    public void deleteProductById(Long productId) {
-//        try {
-//            log.info("ProductService::deleteProductById execution started...");
-//
-//            //CHECK EXIST
-//            FileUpload existProduct = DTOUtil.map(getProductById(productId), FileUpload.class);
-//
-//            //EXECUTE
-//            productRepository.delete(existProduct);
-//        } catch (FileException.ProductServiceBusinessException ex) {
-//            log.error("Exception occurred while deleting product {} from database, Exception message {}", productId, ex.getMessage());
-//            throw new FileException.ProductServiceBusinessException("Exception occurred while deleting product from Database " + productId);
-//        }
-//
-//        log.info("ProductService::deleteProductById execution ended...");
-//    }
+
+    public void deleteFileUploadById(Long fileUploadId) {
+        try {
+            log.info("FileUploadService::deleteFileUploadById execution started...");
+
+            //CHECK EXIST
+            FileUpload existFileUpload = DTOUtil.map(getFileUploadById(fileUploadId), FileUpload.class);
+
+            //EXECUTE
+            fileUploadRepository.delete(existFileUpload);
+            File file = new File(System.getProperty("user.dir") + UPLOAD_DIR + "/" + existFileUpload.getName());
+            file.delete();
+        } catch (FileUploadException.FileUploadServiceBusinessException ex) {
+            log.error("Exception occurred while deleting fileUpload {} from database, Exception message {}", fileUploadId, ex.getMessage());
+            throw ex;
+        }
+
+        log.info("FileUploadService::deleteFileUploadById execution ended...");
+    }
 }

@@ -78,11 +78,11 @@ public class FileUploadController {
 //        return new ResponseEntity<>(response, HttpStatus.OK);
 //    }
 //
-//    @DeleteMapping(value = "/product/{productId}")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void deleteFileUploadById(@PathVariable Long productId) {
-//        log.info("FileUploadController::deleteFileUploadById is {}", productId);
-//        productService.deleteFileUploadById(productId);
-//        log.info("FileUploadController::deleteFileUploadById is ended successfully");
-//    }
+    @DeleteMapping(value = "/file-upload/{fileUploadId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFileUploadById(@PathVariable Long fileUploadId) {
+        log.info("FileUploadController::deleteFileUploadById is {}", fileUploadId);
+        fileUploadService.deleteFileUploadById(fileUploadId);
+        log.info("FileUploadController::deleteFileUploadById is ended successfully");
+    }
 }
