@@ -21,6 +21,8 @@ public class FileUpload {
     private Long id;
     @Column(name = "name")
     private String name;
+    @Column(name = "extension")
+    private String extension;
     @Column(name = "content_type")
     private String contentType;
     @Column(name = "size")

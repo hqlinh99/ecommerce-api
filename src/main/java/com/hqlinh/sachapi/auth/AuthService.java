@@ -6,15 +6,9 @@ import com.hqlinh.sachapi.security.CustomAuthenticationManager;
 import com.hqlinh.sachapi.util.ValueMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -41,13 +35,9 @@ public class AuthService {
             Account account = (Account) authentication.getPrincipal();
             authenticationResponse = new Auth.AuthenticationResponse(jwtService.generateAccessToken(account), jwtService.generateRefreshToken(account));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("AuthService:create request parameters {}", ValueMapper.jsonAsString(authenticationRequest));
-        } catch (AuthException.AuthServiceBusinessException ex) {
+        } catch (AuthException.AuthServiceBusinessException | UsernameNotFoundException ex) {
             log.error("Exception occurred while logging in account, Exception message {}", ex.getMessage());
-            throw new AuthException.AuthServiceBusinessException("Exception occurred while logging in account!");
-        } catch (UsernameNotFoundException ex) {
-            log.error("Exception occurred while logging in account, Exception message {}", ex.getMessage());
-            throw new UsernameNotFoundException(ex.getMessage());
+            throw ex;
         }
 
         log.info("AuthService::login execution ended...");
@@ -61,14 +51,12 @@ public class AuthService {
 
             String username = jwtService.getUsernameFromToken(refreshToken);
 
-            log.debug("AuthService:refresh token request parameters {}", refreshToken);
             Account account = accountRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
 
             authenticationResponse = new Auth.AuthenticationResponse(jwtService.generateAccessToken(account), jwtService.generateRefreshToken(account));
-            log.debug("AuthService:refresh token request parameters {}", refreshToken);
         } catch (AuthException.AuthServiceBusinessException ex) {
             log.error("Exception occurred while logging in account, Exception message {}", ex.getMessage());
-            throw new AuthException.AuthServiceBusinessException("Exception occurred while logging in account!");
+            throw ex;
         }
 
         log.info("AuthService::refresh token execution ended...");

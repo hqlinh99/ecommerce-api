@@ -1,18 +1,17 @@
 package com.hqlinh.sachapi.product;
 
 import com.hqlinh.sachapi.util.DTOUtil;
-import com.hqlinh.sachapi.util.ValueMapper;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
-import jakarta.validation.*;
+import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor

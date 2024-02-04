@@ -1,6 +1,7 @@
 package com.hqlinh.sachapi.file;
 
 import com.hqlinh.sachapi.core.APIResponse;
+import com.hqlinh.sachapi.util.ValidationUtil;
 import com.hqlinh.sachapi.util.ValueMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -62,22 +64,21 @@ public class FileUploadController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 //
-//    @PatchMapping(value = "/product/{productId}")
-//    public ResponseEntity<?> updateFileUploadById(@PathVariable Long productId, @RequestBody Map<String, Object> fields) throws MethodArgumentNotValidException {
-//        //Validate
-//        ValidationUtil.validate(fields, FileDTO.class);
-//
-//        log.info("FileUploadController::updateFileUploadById is {}", productId);
-//        FileDTO.FileUploadResponseDTO productResponseDTO = productService.updateFileUploadById(productId, fields);
-//        APIResponse<FileDTO.FileUploadResponseDTO> response = APIResponse
-//                .<FileDTO.FileUploadResponseDTO>builder()
-//                .status("SUCCESS")
-//                .result(productResponseDTO)
-//                .build();
-//        log.info("FileUploadController::updateFileUploadById response: {}", ValueMapper.jsonAsString(response));
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
-//
+    @PatchMapping(value = "/file-upload/{fileUploadId}")
+    public ResponseEntity<?> updateNameFileUploadById(@PathVariable Long fileUploadId, @RequestBody FileUploadDTO.NameFileUploadRequest fileName) throws MethodArgumentNotValidException {
+        //Validate
+        ValidationUtil.validate(fileName, FileUploadDTO.class);
+
+        log.info("FileUploadController::updateNameFileUploadById is {}", fileUploadId);
+        FileUploadDTO.FileUploadResponseDTO productResponseDTO = fileUploadService.updateNameFileUploadById(fileUploadId, fileName);
+        APIResponse<?> response = APIResponse
+                .builder()
+                .status("SUCCESS")
+                .result(productResponseDTO)
+                .build();
+        log.info("FileUploadController::updateNameFileUploadById response: {}", ValueMapper.jsonAsString(response));
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     @DeleteMapping(value = "/file-upload/{fileUploadId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFileUploadById(@PathVariable Long fileUploadId) {

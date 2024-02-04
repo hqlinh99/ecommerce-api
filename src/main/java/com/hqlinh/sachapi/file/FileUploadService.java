@@ -5,7 +5,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +14,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,24 +37,17 @@ public class FileUploadService {
 
             //CHECK FILE NAME
             String originalFileName = multipartFile.getOriginalFilename();
-            String fileName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+            String fileName = createFileName(originalFileName.substring(0, originalFileName.lastIndexOf('.')));
             String extension = originalFileName.substring(originalFileName.lastIndexOf('.'));
-
-            int i = 1;
-            StringBuilder newFileName = new StringBuilder(fileName);
-            while (fileUploadRepository.existsByName(newFileName.toString() + extension)) {
-                newFileName.setLength(0);
-                newFileName.append(fileName).append("-").append(i++);
-            }
-            newFileName.append(extension);
-            fileName = newFileName.toString();
+            String fileNameWithExtension = fileName + extension;
 
             //SET FILE_UPLOAD
             FileUpload fileUpload = new FileUpload();
             fileUpload.setName(fileName);
+            fileUpload.setExtension(extension);
             fileUpload.setContentType(multipartFile.getContentType());
             fileUpload.setSize(multipartFile.getSize());
-            fileUpload.setUrl(PATH.replace("**", "") + fileName);
+            fileUpload.setUrl(PATH.replace("**", "") + fileNameWithExtension);
             if (multipartFile.getContentType().startsWith("image/")) {
                 BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
                 fileUpload.setDimension(new Dimension(bufferedImage.getWidth(), bufferedImage.getHeight()));
@@ -68,7 +59,7 @@ public class FileUploadService {
                 directory.mkdirs();
 
             //SAVE FILE TO DIRECTORY
-            multipartFile.transferTo(new File(directory, fileName));
+            multipartFile.transferTo(new File(directory, fileNameWithExtension));
 
             //SAVE FILE_UPLOAD TO DATABASE
             FileUpload fileResult = fileUploadRepository.save(fileUpload);
@@ -113,32 +104,49 @@ public class FileUploadService {
         log.info("FileUploadService::getFileUploadById execution ended...");
         return fileUploadResponseDTO;
     }
-//
-//    public FileUploadDTO.FileUploadResponseDTO updateFileUploadById(Long fileUploadId, Map<String, Object> fields) {
-//        FileUploadDTO.FileUploadResponseDTO fileUploadResponseDTO;
-//        try {
-//            log.info("FileUploadService::updateFileUploadById execution started...");
-//
-//            //CHECK EXISTED
-//            FileUpload existFileUpload = DTOUtil.map(getFileUploadById(fileUploadId), FileUpload.class);
-//
-//            //EXECUTE
-//            fields.forEach((key, value) -> {
-//                Field field = ReflectionUtils.findField(FileUpload.class, key);
-//                field.setAccessible(true);
-//                ReflectionUtils.setField(field, existFileUpload, value);
-//            });
-//
-//            FileUpload fileUploadResult = fileUploadRepository.save(DTOUtil.map(existFileUpload, FileUpload.class));
-//            fileUploadResponseDTO = DTOUtil.map(fileUploadResult, FileUploadDTO.FileUploadResponseDTO.class);
-//        } catch (FileException.FileUploadServiceBusinessException ex) {
-//            log.error("Exception occurred while persisting fileUpload to database, Exception message {}", ex.getMessage());
-//            throw ex;
-//        }
-//
-//        log.info("FileUploadService::updateFileUploadById execution ended...");
-//        return fileUploadResponseDTO;
-//    }
+
+    //
+    public FileUploadDTO.FileUploadResponseDTO updateNameFileUploadById(Long fileUploadId, FileUploadDTO.NameFileUploadRequest fileName) {
+        FileUploadDTO.FileUploadResponseDTO fileUploadResponseDTO;
+        try {
+            log.info("FileUploadService::updateNameFileUploadById execution started...");
+
+            //CHECK EXISTED
+            FileUpload existFileUpload = DTOUtil.map(getFileUploadById(fileUploadId), FileUpload.class);
+
+
+            //EXECUTE
+            if (existFileUpload.getName().equals(fileName.getName()))
+                fileUploadResponseDTO = DTOUtil.map(existFileUpload, FileUploadDTO.FileUploadResponseDTO.class);
+            else {
+                //get old file name
+                String oldFileNameWithExtension = existFileUpload.getName() + existFileUpload.getExtension();
+
+                //check existed file name
+                String newFileName = createFileName(fileName.getName());
+                String newFileNameWithExtension = newFileName + existFileUpload.getExtension();
+
+                //update new file name in database
+                existFileUpload.setName(newFileName);
+                existFileUpload.setUrl(PATH.replace("**", "") + newFileNameWithExtension);
+                FileUpload fileUploadResult = fileUploadRepository.save(existFileUpload);
+
+                //update file name in directory
+                File oldFile = new File(System.getProperty("user.dir") + UPLOAD_DIR + "/" + oldFileNameWithExtension);
+                File newFile = new File(System.getProperty("user.dir") + UPLOAD_DIR + "/" + newFileNameWithExtension);
+                if (!oldFile.renameTo(newFile))
+                    log.error("Update file name failed");
+
+                fileUploadResponseDTO = DTOUtil.map(fileUploadResult, FileUploadDTO.FileUploadResponseDTO.class);
+            }
+        } catch (FileUploadException.FileUploadServiceBusinessException ex) {
+            log.error("Exception occurred while persisting fileUpload to database, Exception message {}", ex.getMessage());
+            throw ex;
+        }
+
+        log.info("FileUploadService::updateNameFileUploadById execution ended...");
+        return fileUploadResponseDTO;
+    }
 
     public void deleteFileUploadById(Long fileUploadId) {
         try {
@@ -149,7 +157,8 @@ public class FileUploadService {
 
             //EXECUTE
             fileUploadRepository.delete(existFileUpload);
-            File file = new File(System.getProperty("user.dir") + UPLOAD_DIR + "/" + existFileUpload.getName());
+            String fileNameWithExtension = existFileUpload.getName() + existFileUpload.getExtension();
+            File file = new File(System.getProperty("user.dir") + UPLOAD_DIR + "/" + fileNameWithExtension);
             file.delete();
         } catch (FileUploadException.FileUploadServiceBusinessException ex) {
             log.error("Exception occurred while deleting fileUpload {} from database, Exception message {}", fileUploadId, ex.getMessage());
@@ -157,5 +166,15 @@ public class FileUploadService {
         }
 
         log.info("FileUploadService::deleteFileUploadById execution ended...");
+    }
+
+    private String createFileName(String fileName) {
+        int i = 1;
+        StringBuilder newFileName = new StringBuilder(fileName);
+        while (fileUploadRepository.existsByName(newFileName.toString())) {
+            newFileName.setLength(0);
+            newFileName.append(fileName).append("-").append(i++);
+        }
+        return newFileName.toString();
     }
 }
