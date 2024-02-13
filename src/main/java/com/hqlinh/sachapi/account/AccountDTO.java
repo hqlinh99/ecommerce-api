@@ -24,6 +24,7 @@ public abstract class AccountDTO {
     private String password;
     @NotBlank(message = "password shouldn't be NULL OR EMPTY")
     private String newPassword;
+    private String avatar;
     private Role role;
 
     @Getter
@@ -36,6 +37,7 @@ public abstract class AccountDTO {
         private String lastName;
         private String email;
         private String password;
+        private String avatar;
         private Role role;
     }
 
@@ -49,6 +51,7 @@ public abstract class AccountDTO {
         private String firstName;
         private String lastName;
         private String email;
+        private String avatar;
         private Role role;
     }
 

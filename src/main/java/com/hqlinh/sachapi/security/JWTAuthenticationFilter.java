@@ -1,6 +1,7 @@
 package com.hqlinh.sachapi.security;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.hqlinh.sachapi.account.Account;
 import com.hqlinh.sachapi.account.IAccountRepository;
 import com.hqlinh.sachapi.auth.JWTService;
 import com.hqlinh.sachapi.core.APIResponse;
@@ -11,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -31,23 +34,25 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final IAccountRepository accountRepository;
     private final JWTService jwtService;
 
+    @SneakyThrows
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         try {
             String token = request.getHeader("Authorization");
-            if (token != null && token.startsWith("Bearer")) {
+            if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
                 token = token.substring(7);
-                String username = null;
+                String username = jwtService.getUsernameFromToken(token);
+                String providerId = jwtService.getProviderId(token);
 
-                username = jwtService.getUsernameFromToken(token);
-
-                UserDetails userDetails = accountRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+                Account account = accountRepository.findByEmail(username)
+                        .orElseGet(() -> accountRepository.findByProviderId(providerId)
+                                .orElseThrow(() -> new UsernameNotFoundException("Account not found!")));
 
                 UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-                String accessToken = jwtService.generateAccessToken(userDetails);
+                String accessToken = jwtService.generateAccessToken(account);
                 response.addHeader("Authorization", "Bearer " + accessToken);
             }
             filterChain.doFilter(request, response);

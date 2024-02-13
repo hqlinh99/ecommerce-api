@@ -4,6 +4,7 @@ import com.hqlinh.sachapi.core.CustomException;
 import com.hqlinh.sachapi.util.DTOUtil;
 import jakarta.persistence.NoResultException;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,8 @@ import java.util.Map;
 public class AccountService {
     private IAccountRepository accountRepository;
     private PasswordEncoder passwordEncoder;
-    public AccountDTO.AccountResponseDTO create(AccountDTO.AccountRequestDTO accountRequestDTO) throws CustomException.DuplicatedException {
+    @SneakyThrows
+    public AccountDTO.AccountResponseDTO create(AccountDTO.AccountRequestDTO accountRequestDTO) {
         AccountDTO.AccountResponseDTO accountResponseDTO;
         try {
             log.info("AccountService::create execution started...");
@@ -121,7 +123,8 @@ public class AccountService {
         log.info("AccountService::deleteAccountById execution ended...");
     }
 
-    public AccountDTO.AccountResponseDTO changePassword(Long accountId, AccountDTO.PasswordRequest passwordRequest) throws AccountException.PasswordNoMatchException {
+    @SneakyThrows
+    public AccountDTO.AccountResponseDTO changePassword(Long accountId, AccountDTO.PasswordRequest passwordRequest) {
         AccountDTO.AccountResponseDTO accountResponseDTO;
         try {
             log.info("AccountService::updateAccountById execution started...");

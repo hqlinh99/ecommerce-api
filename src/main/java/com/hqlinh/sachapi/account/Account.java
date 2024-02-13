@@ -1,7 +1,8 @@
 package com.hqlinh.sachapi.account;
 
+import com.hqlinh.sachapi.security.oauth2.AuthProvider;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,8 +32,16 @@ public class Account implements UserDetails {
     private String email;
     @Column(name = "password")
     private String password;
+    @Column(name = "avatar")
+    private String avatar;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider")
+    private AuthProvider authProvider = AuthProvider.local;
+    @Column(name = "provider_id")
+    private String providerId;
+
+    @Column(name = "role")
     private Role role;
 
     @Override

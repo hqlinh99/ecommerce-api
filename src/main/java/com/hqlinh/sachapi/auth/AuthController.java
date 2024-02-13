@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
@@ -38,7 +39,7 @@ public class AuthController {
                 .result(authenticationResponse)
                 .build();
         log.info("AuthController::login response: {}", ValueMapper.jsonAsString(response));
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/refresh-token")
@@ -51,6 +52,6 @@ public class AuthController {
                 .result(authenticationResponse)
                 .build();
         log.info("AuthController::refresh token response: {}", ValueMapper.jsonAsString(response));
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
