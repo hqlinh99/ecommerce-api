@@ -17,8 +17,8 @@ import java.util.Collections;
 @RestControllerAdvice
 public class HandleAuthException {
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<APIResponse> handleHandleAuthException(AuthenticationException ex) {
+    @ExceptionHandler({AuthenticationException.class, NumberFormatException.class})
+    public ResponseEntity<APIResponse> handleHandleAuthException(Exception ex) {
         APIResponse<String> response = APIResponse
                 .<String>builder()
                 .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))

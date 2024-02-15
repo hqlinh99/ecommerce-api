@@ -24,6 +24,7 @@ public abstract class Auth {
     @AllArgsConstructor
     public static class AuthenticationRequest {
         private String email;
+        private String username;
         private String password;
     }
 }

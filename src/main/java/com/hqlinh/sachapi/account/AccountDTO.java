@@ -20,6 +20,7 @@ public abstract class AccountDTO {
     @NotBlank(message = "email shouldn't be NULL OR EMPTY")
     @Email(message = "invalid email address")
     private String email;
+    private String username;
     @NotBlank(message = "password shouldn't be NULL OR EMPTY")
     private String password;
     @NotBlank(message = "password shouldn't be NULL OR EMPTY")
@@ -36,6 +37,7 @@ public abstract class AccountDTO {
         private String firstName;
         private String lastName;
         private String email;
+        private String username;
         private String password;
         private String avatar;
         private Role role;
@@ -51,6 +53,7 @@ public abstract class AccountDTO {
         private String firstName;
         private String lastName;
         private String email;
+        private String username;
         private String avatar;
         private Role role;
     }

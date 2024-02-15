@@ -25,21 +25,22 @@ public class JWTService {
 
     public String generateAccessToken(Account account) {
         return JWT.create()
-                .withSubject(account.getUsername())
+                .withSubject(account.getId().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationAccessToken))
                 .withClaim("roles", account.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .withClaim("providerId", account.getProviderId())
+                .withClaim("email", account.getEmail())
+                .withClaim("username", account.getUsername())
                 .sign(Algorithm.HMAC256(secretKey.getBytes()));
     }
 
     public String generateRefreshToken(Account account) {
         return JWT.create()
-                .withSubject(account.getUsername())
+                .withSubject(account.getId().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationRefreshToken))
                 .sign(Algorithm.HMAC256(secretKey.getBytes()));
     }
-
-    public String getUsernameFromToken(String token) throws JWTVerificationException {
+    public String getSubjectToken(String token) throws JWTVerificationException {
         return JWT.require(Algorithm.HMAC256(secretKey.getBytes())).build().verify(token).getSubject();
     }
     public String getProviderId(String token) throws JWTVerificationException {

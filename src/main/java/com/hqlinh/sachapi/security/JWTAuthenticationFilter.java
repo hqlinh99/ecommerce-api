@@ -41,12 +41,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             String token = request.getHeader("Authorization");
             if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
                 token = token.substring(7);
-                String username = jwtService.getUsernameFromToken(token);
-                String providerId = jwtService.getProviderId(token);
+                String subject = jwtService.getSubjectToken(token);
 
-                Account account = accountRepository.findByEmail(username)
-                        .orElseGet(() -> accountRepository.findByProviderId(providerId)
-                                .orElseThrow(() -> new UsernameNotFoundException("Account not found!")));
+                Account account = accountRepository.findById(Long.parseLong(subject)).orElseThrow(() -> new UsernameNotFoundException("Account not found!"));
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
@@ -66,6 +63,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(Objects.requireNonNull(ValueMapper.jsonAsString(res)));
             log.error("{}::JWTAuthenticationFilterException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(res));
+        } catch (NumberFormatException ex) {
+            log.error("{}::JWTAuthenticationFilterException catch error: token is not valid!", ex.getClass().getSimpleName());
+            throw new NumberFormatException("token is not valid!");
         }
     }
 }

@@ -8,10 +8,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+
+import static com.hqlinh.sachapi.account.Role.ADMIN;
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
@@ -35,7 +39,7 @@ public class AccountController {
         log.info("AccountController::createNewAccount response: {}", ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
+    @PreAuthorize(value = "hasAnyAuthority(ADMIN.name())")
     @GetMapping(value = "/accounts")
     public ResponseEntity<?> getAccounts() {
         List<AccountDTO.AccountResponseDTO> accountResponseDTOS = accountService.getAccounts();

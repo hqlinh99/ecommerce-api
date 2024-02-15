@@ -39,6 +39,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.nio.file.AccessDeniedException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +69,8 @@ public class HandleException {
             HttpMessageNotWritableException.class,
             MethodValidationException.class,
             BindException.class,
-            MultipartException.class
+            MultipartException.class,
+            IllegalArgumentException.class
     })
     public ResponseEntity<?> handleException(Exception ex) {
         APIResponse<String> response = APIResponse
@@ -133,5 +135,15 @@ public class HandleException {
                 .build();
         log.error("{}::handleDuplicatedException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(AccountException.NoAccessException.class)
+    public ResponseEntity<APIResponse> handleNoAccessException(Exception ex) {
+        APIResponse<String> response = APIResponse
+                .<String>builder()
+                .errors(Collections.singletonList(new ErrorResponse(null, ex.getMessage())))
+                .status("FAILED")
+                .build();
+        log.error("{}::handleNoAccessException catch error: {}", ex.getClass().getSimpleName(), ValueMapper.jsonAsString(response));
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }

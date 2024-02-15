@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "accounts")
 public class Account implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "first_name")
     private String firstName;
@@ -30,6 +30,8 @@ public class Account implements UserDetails {
     private String lastName;
     @Column(name = "email")
     private String email;
+    @Column(name = "username")
+    private String username;
     @Column(name = "password")
     private String password;
     @Column(name = "avatar")
@@ -46,12 +48,12 @@ public class Account implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.toString()));
+        return role.getAuthorities();
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return username != null ? username : email;
     }
 
     @Override

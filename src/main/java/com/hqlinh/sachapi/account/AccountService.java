@@ -6,11 +6,15 @@ import jakarta.persistence.NoResultException;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import javax.naming.NoPermissionException;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +26,7 @@ import java.util.Map;
 public class AccountService {
     private IAccountRepository accountRepository;
     private PasswordEncoder passwordEncoder;
+
     @SneakyThrows
     public AccountDTO.AccountResponseDTO create(AccountDTO.AccountRequestDTO accountRequestDTO) {
         AccountDTO.AccountResponseDTO accountResponseDTO;
@@ -29,6 +34,9 @@ public class AccountService {
             log.info("AccountService::create execution started...");
 
             //CHECK EXISTED
+            if (accountRepository.existsByUsername(accountRequestDTO.getUsername())) {
+                throw new CustomException.DuplicatedException("Account already exists with username " + accountRequestDTO.getUsername());
+            }
             if (accountRepository.existsByEmail(accountRequestDTO.getEmail())) {
                 throw new CustomException.DuplicatedException("Account already exists with email " + accountRequestDTO.getEmail());
             }
@@ -86,13 +94,14 @@ public class AccountService {
         try {
             log.info("AccountService::updateAccountById execution started...");
             //CHECK EXISTED
-            Account existAccount = DTOUtil.map(getAccountById(accountId), Account.class);
+            Account existAccount = accountRepository.findById(accountId).orElseThrow(() -> new NoResultException("Account not found with id " + accountId));
 
             //EXECUTE
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Account.class, key);
                 field.setAccessible(true);
-                ReflectionUtils.setField(field, existAccount, value);
+                var newValue = key.equals("role") ? Role.valueOf(value.toString()) : value;
+                ReflectionUtils.setField(field, existAccount, newValue);
             });
 
             Account accountResult = accountRepository.save(existAccount);
@@ -109,6 +118,13 @@ public class AccountService {
     public void deleteAccountById(Long accountId) {
         try {
             log.info("AccountService::deleteAccountById execution started...");
+
+            //CHECK ROLE
+            Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (!account.getRole().equals(Role.ADMIN))
+                //CHECK CURRENT ACCOUNT
+                if (!account.getId().equals(accountId))
+                    throw new AccountException.NoAccessException("You dont have permission to delete this account");
 
             //CHECK EXISTED
             Account existAccount = DTOUtil.map(getAccountById(accountId), Account.class);

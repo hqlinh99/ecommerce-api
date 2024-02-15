@@ -26,9 +26,10 @@ public class AuthService {
         try {
             log.info("AuthService::login execution started...");
 
+            String username = authenticationRequest.getUsername() != null ? authenticationRequest.getUsername() : authenticationRequest.getEmail();
             Authentication authentication = authenticate.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            authenticationRequest.getEmail(),
+                            username,
                             authenticationRequest.getPassword()
                     )
             );
@@ -50,9 +51,10 @@ public class AuthService {
         try {
             log.info("AuthService::refresh token execution started...");
 
-            String username = jwtService.getUsernameFromToken(refreshToken);
+            String subject = jwtService.getSubjectToken(refreshToken);
 
-            Account account = accountRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+            Account account = accountRepository.findById(Long.parseLong(subject))
+                            .orElseThrow(() -> new UsernameNotFoundException("Account not found!"));
 
             authenticationResponse = new Auth.AuthenticationResponse(jwtService.generateAccessToken(account), jwtService.generateRefreshToken(account));
         } catch (AuthException.AuthServiceBusinessException ex) {
