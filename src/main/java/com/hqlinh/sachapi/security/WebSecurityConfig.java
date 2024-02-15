@@ -21,6 +21,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class WebSecurityConfig {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -29,6 +30,13 @@ public class WebSecurityConfig {
             authorize.requestMatchers("/oauth2/**").permitAll();
             authorize.requestMatchers(GET, "/upload/**", "/api/v1/products", "/api/v1/product/**").permitAll();
             authorize.requestMatchers(POST, "/api/v1/account", "/api/v1/login", "/api/v1/refresh-token").permitAll();
+
+            authorize.requestMatchers(GET, "/api/v1/accounts").hasAnyRole(ADMIN.name());
+
+            authorize.requestMatchers(POST, "/api/v1/product").hasAnyRole(ADMIN.name(), MANAGER.name(), SUB_MANAGER.name());
+            authorize.requestMatchers(PATCH, "/api/v1/product/**").hasAnyRole(ADMIN.name(), MANAGER.name(), SUB_MANAGER.name());
+            authorize.requestMatchers(DELETE, "/api/v1/product/**").hasAnyRole(ADMIN.name(), MANAGER.name());
+
             authorize.anyRequest().authenticated();
         });
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
@@ -40,7 +48,7 @@ public class WebSecurityConfig {
             config.successHandler(oAuth2AuthenticationSuccessHandler);
         });
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+        http.exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler));
         return http.build();
     }
 }

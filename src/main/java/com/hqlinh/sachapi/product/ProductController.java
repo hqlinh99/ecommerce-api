@@ -3,24 +3,17 @@ package com.hqlinh.sachapi.product;
 import com.hqlinh.sachapi.core.APIResponse;
 import com.hqlinh.sachapi.util.ValidationUtil;
 import com.hqlinh.sachapi.util.ValueMapper;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -71,6 +64,7 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize(value = "hasAnyAuthority(ADMIN.name(), MANAGER.name(), SUB_MANAGER.name())")
     @PatchMapping(value = "/product/{productId}")
     public ResponseEntity<?> updateProductById(@PathVariable Long productId, @RequestBody Map<String, Object> fields) throws MethodArgumentNotValidException {
         //Validate
@@ -87,6 +81,7 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize(value = "hasAnyAuthority(ADMIN.name(), MANAGER.name())")
     @DeleteMapping(value = "/product/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProductById(@PathVariable Long productId) {

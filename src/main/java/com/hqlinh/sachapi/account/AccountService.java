@@ -93,6 +93,23 @@ public class AccountService {
         AccountDTO.AccountResponseDTO accountResponseDTO;
         try {
             log.info("AccountService::updateAccountById execution started...");
+
+            //CHECK ROLE
+            Account account = (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (!account.getRole().equals(Role.ADMIN)) {
+                //CHECK CURRENT ACCOUNT
+                if (!account.getId().equals(accountId))
+                    throw new AccessDeniedException("you dont have permission to update this account");
+
+                //CHECK UPDATE ROLE
+                if (fields.containsKey("role") && !account.getRole().equals(Role.valueOf(fields.get("role").toString())))
+                    throw new AccessDeniedException("you dont have permission to update your role");
+
+                //CHECK UPDATE PASSWORD
+                if (fields.containsKey("password"))
+                    throw new AccessDeniedException("you must be admin to update your password by this endpoint");
+            }
+
             //CHECK EXISTED
             Account existAccount = accountRepository.findById(accountId).orElseThrow(() -> new NoResultException("Account not found with id " + accountId));
 
@@ -100,7 +117,7 @@ public class AccountService {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Account.class, key);
                 field.setAccessible(true);
-                var newValue = key.equals("role") ? Role.valueOf(value.toString()) : value;
+                var newValue = key.equals("role") ? Role.valueOf(value.toString()) : key.equals("password") ? passwordEncoder.encode(value.toString()) : value;
                 ReflectionUtils.setField(field, existAccount, newValue);
             });
 
@@ -124,7 +141,7 @@ public class AccountService {
             if (!account.getRole().equals(Role.ADMIN))
                 //CHECK CURRENT ACCOUNT
                 if (!account.getId().equals(accountId))
-                    throw new AccountException.NoAccessException("You dont have permission to delete this account");
+                    throw new AccessDeniedException("you dont have permission to delete this account");
 
             //CHECK EXISTED
             Account existAccount = DTOUtil.map(getAccountById(accountId), Account.class);

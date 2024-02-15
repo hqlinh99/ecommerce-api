@@ -26,6 +26,9 @@ public abstract class ProductDTO {
 
     @NotBlank(message = "supplier code shouldn't be NULL OR EMPTY")
     private String supplierCode;
+    private List<String> images;
+
+
     @Getter
     @Setter
     @EqualsAndHashCode
@@ -40,6 +43,7 @@ public abstract class ProductDTO {
         private double price;
         private String supplierName;
         private String supplierCode;
+        private List<String> images;
 
     }
 
