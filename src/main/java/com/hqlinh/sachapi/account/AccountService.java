@@ -89,7 +89,7 @@ public class AccountService {
         return accountResponseDTO;
     }
 
-    public AccountDTO.AccountResponseDTO updateAccountById(Long accountId, Map<String, Object> fields) {
+    public AccountDTO.AccountResponseDTO updateAccountById(Long accountId, Map<String,  Object> fields) {
         AccountDTO.AccountResponseDTO accountResponseDTO;
         try {
             log.info("AccountService::updateAccountById execution started...");
@@ -118,7 +118,7 @@ public class AccountService {
                 Field field = ReflectionUtils.findField(Account.class, key);
                 field.setAccessible(true);
                 var newValue = key.equals("role") ? Role.valueOf(value.toString()) : key.equals("password") ? passwordEncoder.encode(value.toString()) : value;
-                ReflectionUtils.setField(field, existAccount, newValue);
+                if (!key.equals("id")) ReflectionUtils.setField(field, existAccount, newValue);
             });
 
             Account accountResult = accountRepository.save(existAccount);

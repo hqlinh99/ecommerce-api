@@ -1,6 +1,7 @@
 package com.hqlinh.sachapi.product;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -21,12 +22,9 @@ public abstract class ProductDTO {
     @Min(value = 200, message = "product price can't be less than 200")
     @Max(value = 500000, message = "product price can't be more than 500000")
     private double price;
-
-    private String supplierName;
-
-    @NotBlank(message = "supplier code shouldn't be NULL OR EMPTY")
-    private String supplierCode;
     private List<String> images;
+    private Number createdAt;
+    private Number updatedAt;
 
 
     @Getter
@@ -41,10 +39,9 @@ public abstract class ProductDTO {
         private String productType;
         private int quantity;
         private double price;
-        private String supplierName;
-        private String supplierCode;
         private List<String> images;
-
+        private Number createdAt;
+        private Number updatedAt;
     }
 
     @Getter

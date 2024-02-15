@@ -35,12 +35,13 @@ public class Product {
     private int quantity;
     @Column(name = "price")
     private double price;
-    @Column(name = "supplier_name")
-    private String supplierName;
-    @Column(name = "supplier_code")
-    private String supplierCode;
 
     @Type(JsonType.class)
     @Column(name = "images", columnDefinition = "json")
     private ArrayList<String> images;
+
+    @Column(name = "created_at")
+    private Number createdAt;
+    @Column(name = "updated_at")
+    private Number updatedAt;
 }

@@ -2,12 +2,15 @@ package com.hqlinh.sachapi.file;
 
 import com.hqlinh.sachapi.util.DTOUtil;
 import jakarta.persistence.NoResultException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -47,7 +50,9 @@ public class FileUploadService {
             fileUpload.setExtension(extension);
             fileUpload.setContentType(multipartFile.getContentType());
             fileUpload.setSize(multipartFile.getSize());
-            fileUpload.setUrl(PATH.replace("**", "") + fileNameWithExtension);
+            fileUpload.setUrl(
+                    ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString()
+                            + PATH.replace("**", "") + fileNameWithExtension);
             if (multipartFile.getContentType().startsWith("image/")) {
                 BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
                 fileUpload.setDimension(new Dimension(bufferedImage.getWidth(), bufferedImage.getHeight()));
@@ -127,7 +132,9 @@ public class FileUploadService {
 
                 //update new file name in database
                 existFileUpload.setName(newFileName);
-                existFileUpload.setUrl(PATH.replace("**", "") + newFileNameWithExtension);
+                existFileUpload.setUrl(
+                        ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString()
+                                + PATH.replace("**", "") + newFileNameWithExtension);
                 FileUpload fileUploadResult = fileUploadRepository.save(existFileUpload);
 
                 //update file name in directory

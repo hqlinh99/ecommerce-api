@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 public abstract class AccountDTO {
     private Long id;
     @NotBlank(message = "account First Name shouldn't be NULL OR EMPTY")
@@ -26,7 +28,10 @@ public abstract class AccountDTO {
     @NotBlank(message = "password shouldn't be NULL OR EMPTY")
     private String newPassword;
     private String avatar;
+    private String biography;
     private Role role;
+    private Number createdAt;
+    private Number updatedAt;
 
     @Getter
     @Setter
@@ -40,7 +45,10 @@ public abstract class AccountDTO {
         private String username;
         private String password;
         private String avatar;
+        private String biography;
         private Role role;
+        private Number createdAt;
+        private Number updatedAt;
     }
 
     @Getter
@@ -55,7 +63,10 @@ public abstract class AccountDTO {
         private String email;
         private String username;
         private String avatar;
+        private String biography;
         private Role role;
+        private Number createdAt;
+        private Number updatedAt;
     }
 
     @Getter
