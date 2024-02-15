@@ -8,6 +8,7 @@ import lombok.*;
 import java.util.List;
 
 public abstract class ProductDTO {
+    private Long id;
     @NotBlank(message = "product name shouldn't be NULL OR EMPTY")
     private String name;
 
@@ -21,7 +22,7 @@ public abstract class ProductDTO {
 
     @Min(value = 200, message = "product price can't be less than 200")
     @Max(value = 500000, message = "product price can't be more than 500000")
-    private double price;
+    private long price;
     private List<String> images;
     private Number createdAt;
     private Number updatedAt;
@@ -33,12 +34,11 @@ public abstract class ProductDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ProductRequestDTO {
-        @NotBlank(message = "product name shouldn't be NULL OR EMPTY")
         private String name;
         private String description;
         private String productType;
         private int quantity;
-        private double price;
+        private long price;
         private List<String> images;
         private Number createdAt;
         private Number updatedAt;

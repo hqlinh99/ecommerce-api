@@ -23,9 +23,14 @@ public class ValidationUtil {
         execute(fields, bindingResult, tClass);
 
     }
+
     private static <S> void execute(Map<String, Object> fields, BindingResult bindingResult, Class<S> sClass) throws MethodArgumentNotValidException {
         Set<Set<ConstraintViolation<S>>> constraintsSet = new HashSet<>();
-        fields.forEach((String key, Object value) -> constraintsSet.add(Validation.buildDefaultValidatorFactory().getValidator().validateValue(sClass, key, value)));
+        fields.forEach((String key, Object value) -> {
+            if (key.equals("price")) value = Long.parseLong(value.toString());
+            if (key.equals("quantity")) value = Integer.parseInt(value.toString());
+            constraintsSet.add(Validation.buildDefaultValidatorFactory().getValidator().validateValue(sClass, key, value));
+        });
         if (!constraintsSet.isEmpty()) {
             constraintsSet.forEach(constraints -> {
                 constraints.forEach(violation -> {

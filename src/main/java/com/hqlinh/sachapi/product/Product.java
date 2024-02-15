@@ -27,14 +27,14 @@ public class Product {
     private Long id;
     @Column(name = "name")
     private String name;
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "ntext")
     private String description;
     @Column(name = "product_type")
     private String productType;
     @Column(name = "quantity")
     private int quantity;
     @Column(name = "price")
-    private double price;
+    private long price;
 
     @Type(JsonType.class)
     @Column(name = "images", columnDefinition = "json")

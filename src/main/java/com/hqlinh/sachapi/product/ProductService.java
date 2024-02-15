@@ -82,7 +82,7 @@ public class ProductService {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Product.class, key);
                 field.setAccessible(true);
-                ReflectionUtils.setField(field, existProduct, value);
+                if (!key.equals("id")) ReflectionUtils.setField(field, existProduct, value);
             });
 
             Product productResult = productRepository.save(existProduct);

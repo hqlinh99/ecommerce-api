@@ -64,8 +64,6 @@ public class ProductController {
         log.info("ProductController::getProductById response: {}", ValueMapper.jsonAsString(response));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    @PreAuthorize(value = "hasAnyAuthority(ADMIN.name(), MANAGER.name(), SUB_MANAGER.name())")
     @PatchMapping(value = "/product/{productId}")
     public ResponseEntity<?> updateProductById(@PathVariable Long productId, @RequestBody Map<String, Object> fields) throws MethodArgumentNotValidException {
         //Validate
@@ -82,7 +80,6 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PreAuthorize(value = "hasAnyAuthority(ADMIN.name(), MANAGER.name())")
     @DeleteMapping(value = "/product/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProductById(@PathVariable Long productId) {
