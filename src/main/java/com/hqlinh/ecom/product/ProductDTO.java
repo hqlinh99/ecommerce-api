@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 public abstract class ProductDTO {
@@ -40,8 +41,7 @@ public abstract class ProductDTO {
         private Integer quantity;
         private Long price;
         private List<String> images;
-        private Number createdAt;
-        private Number updatedAt;
+        private Number createdAt = new Date().getTime();
     }
 
     @Getter

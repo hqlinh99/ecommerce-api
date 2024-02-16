@@ -18,9 +18,9 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @JoinColumn(name = "quantity")
+    @Column(name = "quantity")
     private Integer quantity;
-    @JoinColumn(name = "price")
+    @Column(name = "price")
     private Long price;
 
     @Column(name = "created_at")
@@ -35,4 +35,5 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
+
 }

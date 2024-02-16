@@ -1,11 +1,15 @@
 package com.hqlinh.ecom.order;
 
+import com.hqlinh.ecom.account.IAccountRepository;
+import com.hqlinh.ecom.core.CustomException;
 import com.hqlinh.ecom.order_item.IOrderItemRepository;
 import com.hqlinh.ecom.order_item.OrderItem;
 import com.hqlinh.ecom.product.IProductRepository;
 import com.hqlinh.ecom.util.DTOUtil;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,22 +25,48 @@ public class OrderService {
     private final IOrderRepository orderRepository;
     private final IOrderItemRepository orderItemRepository;
     private final IProductRepository productRepository;
+    private final IAccountRepository accountRepository;
 
+    @SneakyThrows
     public OrderDTO.OrderResponseDTO create(OrderDTO.OrderRequestDTO orderRequestDTO) {
         OrderDTO.OrderResponseDTO orderResponseDTO;
         try {
             log.info("OrderService::create new order execution started...");
 
+            //CHECK DUPLICATE PRODUCT IN THE ORDER
+            long countDistinct = orderRequestDTO.getOrderItems()
+                    .stream()
+                    .mapToLong(orderItem -> orderItem.getProduct().getId())
+                    .distinct()
+                    .count();
+            if (countDistinct != orderRequestDTO.getOrderItems().size())
+                throw new IllegalStateException("duplicate product in the order request");
+
+            //CHECK PRODUCT EXISTED
+            orderRequestDTO.getOrderItems().forEach(orderItem -> {
+                if (!productRepository.existsById(orderItem.getProduct().getId()))
+                    throw new NoResultException("cannot find product with id " + orderItem.getProduct().getId());
+            });
+
+            //CHECK ACCOUNT EXISTED
+            if (!accountRepository.existsById(orderRequestDTO.getAccount().getId()))
+                throw new NoResultException("cannot find account with id " + orderRequestDTO.getAccount().getId());
+
             //EXECUTE
+            //calculate total amount
+            long totalAmount = orderRequestDTO.getOrderItems().stream().mapToLong(orderItem -> {
+                long productPrice = productRepository.getPriceById(orderItem.getProduct().getId());
+                return productPrice * orderItem.getQuantity();
+            }).sum();
+
             Order order = DTOUtil.map(orderRequestDTO, Order.class);
+            order.setTotalAmount(totalAmount);
             Order orderResult = orderRepository.save(order);
 
-            //UPDATE ORDER ITEMS
-            orderResult.getOrderItems().forEach(orderItem -> {
+            //update order items
+            orderResult.getOrderItems().stream().forEach(orderItem -> {
                 //SET ORDER TO THE ORDER ITEM AGAIN
                 orderItem.setOrder(orderResult);
-                //SET PRODUCT PRICE TO THE ORDER ITEM AGAIN
-                orderItem.setPrice(productRepository.getPriceById(orderItem.getProduct().getId()));
                 orderItemRepository.save(orderItem);
             });
 

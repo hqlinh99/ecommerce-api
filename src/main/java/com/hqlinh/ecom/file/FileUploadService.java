@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 
@@ -55,6 +56,7 @@ public class FileUploadService {
                 BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
                 fileUpload.setDimension(new Dimension(bufferedImage.getWidth(), bufferedImage.getHeight()));
             }
+            fileUpload.setCreatedAt(new Date().getTime());
 
             //CHECK DIRECTORY EXISTED
             File directory = new File(System.getProperty("user.dir") + UPLOAD_DIR);

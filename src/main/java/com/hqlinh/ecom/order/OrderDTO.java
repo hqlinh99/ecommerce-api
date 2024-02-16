@@ -13,6 +13,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Set;
 
 public abstract class OrderDTO {
@@ -29,14 +32,13 @@ public abstract class OrderDTO {
     private Set<OrderItemDTO.OrderItemRequestDTO> orderItems;
 
 
+
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class OrderRequestDTO {
-        private Long totalAmount;
-        private Number createdAt;
-        private Number updatedAt;
+        private Number createdAt = new Date().getTime();
         private AccountDTO.AccountIdDTO account;
         private Set<OrderItemDTO.OrderItemRequestDTO> orderItems;
     }
@@ -62,6 +64,7 @@ public abstract class OrderDTO {
         private AccountDTO.AccountResponseDTO account;
         @JsonIgnoreProperties(value = "order")
         private Set<OrderItemDTO.OrderItemResponseDTO> orderItems;
+        private OrderStatus status;
     }
 }
 

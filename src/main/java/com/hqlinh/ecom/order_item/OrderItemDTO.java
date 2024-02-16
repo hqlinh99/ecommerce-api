@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 public abstract class OrderItemDTO {
     private Long id;
     private Integer quantity;
@@ -26,7 +28,7 @@ public abstract class OrderItemDTO {
     public static class OrderItemRequestDTO {
         private Integer quantity;
         private ProductDTO.ProductIdDTO product;
-        private Number createdAt;
+        private Number createdAt = new Date().getTime();
     }
 
     @Getter

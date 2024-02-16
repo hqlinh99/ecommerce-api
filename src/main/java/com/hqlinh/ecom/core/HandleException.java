@@ -62,7 +62,8 @@ public class HandleException {
             MethodValidationException.class,
             BindException.class,
             MultipartException.class,
-            IllegalArgumentException.class
+            IllegalArgumentException.class,
+            IllegalStateException.class
     })
     public ResponseEntity<?> handleException(Exception ex) {
         APIResponse<String> response = APIResponse

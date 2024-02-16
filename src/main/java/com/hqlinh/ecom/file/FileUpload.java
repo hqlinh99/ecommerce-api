@@ -31,4 +31,8 @@ public class FileUpload {
     private String url;
     @Column(name = "dimension")
     private Dimension dimension;
+    @Column(name = "created_at")
+    private Number createdAt;
+    @Column(name = "updated_at")
+    private Number updatedAt;
 }

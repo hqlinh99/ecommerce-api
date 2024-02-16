@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.Date;
+
 public abstract class AccountDTO {
     private Long id;
     @NotBlank(message = "account First Name shouldn't be NULL OR EMPTY")
@@ -39,8 +41,7 @@ public abstract class AccountDTO {
         private String avatar;
         private String biography;
         private Role role;
-        private Number createdAt;
-        private Number updatedAt;
+        private Number createdAt = new Date().getTime();
     }
 
     @Getter
