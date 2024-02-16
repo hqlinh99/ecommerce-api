@@ -1,19 +1,14 @@
 package com.hqlinh.sachapi.product;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -27,7 +22,7 @@ public class Product {
     private Long id;
     @Column(name = "name")
     private String name;
-    @Column(name = "description", columnDefinition = "ntext")
+    @Column(name = "description", columnDefinition = "text")
     private String description;
     @Column(name = "product_type")
     private String productType;

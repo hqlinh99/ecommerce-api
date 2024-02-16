@@ -29,14 +29,17 @@ public class JWTService {
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationAccessToken))
                 .withClaim("roles", account.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .withClaim("providerId", account.getProviderId())
-                .withClaim("email", account.getEmail())
-                .withClaim("username", account.getUsername())
                 .sign(Algorithm.HMAC256(secretKey.getBytes()));
     }
 
     public String generateRefreshToken(Account account) {
         return JWT.create()
                 .withSubject(account.getId().toString())
+                .withClaim("roles", account.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .withClaim("username", account.getUsername())
+                .withClaim("email", account.getEmail())
+                .withClaim("avatar", account.getAvatar())
+
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationRefreshToken))
                 .sign(Algorithm.HMAC256(secretKey.getBytes()));
     }
