@@ -27,7 +27,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeRequests(authorize -> {
-            authorize.requestMatchers("/oauth2/**").permitAll();
+            authorize.requestMatchers("/oauth2/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
             authorize.requestMatchers(GET, "/upload/**", "/api/v1/products", "/api/v1/product/**").permitAll();
             authorize.requestMatchers(POST, "/api/v1/account", "/api/v1/login", "/api/v1/refresh-token").permitAll();
 
