@@ -81,6 +81,7 @@ public class ProductService {
             fields.forEach((key, value) -> {
                 Field field = ReflectionUtils.findField(Product.class, key);
                 field.setAccessible(true);
+                if (key.equals("price")) value = Long.valueOf(value.toString());
                 if (!key.equals("id")) ReflectionUtils.setField(field, existProduct, value);
             });
 

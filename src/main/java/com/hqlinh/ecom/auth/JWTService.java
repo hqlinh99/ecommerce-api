@@ -37,13 +37,16 @@ public class JWTService {
                 .withClaim("username", account.getUsername())
                 .withClaim("email", account.getEmail())
                 .withClaim("avatar", account.getAvatar())
+                .withClaim("fullName", account.getFirstName() + " " + account.getLastName())
 
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationRefreshToken))
                 .sign(Algorithm.HMAC256(secretKey.getBytes()));
     }
+
     public String getSubjectToken(String token) throws JWTVerificationException {
         return JWT.require(Algorithm.HMAC256(secretKey.getBytes())).build().verify(token).getSubject();
     }
+
     public String getProviderId(String token) throws JWTVerificationException {
         return JWT.require(Algorithm.HMAC256(secretKey.getBytes())).build().verify(token).getClaim("providerId").asString();
     }

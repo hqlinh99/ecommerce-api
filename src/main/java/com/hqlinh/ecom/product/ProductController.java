@@ -24,7 +24,7 @@ public class ProductController {
     private final Validator validator;
 
     @PostMapping(value = "/product")
-    public ResponseEntity<?> createNewProduct(@RequestBody ProductDTO.ProductRequestDTO productRequestDTO) throws MethodArgumentNotValidException {
+    public ResponseEntity<?> createNewProduct(@RequestBody ProductDTO.ProductRequestDTO productRequestDTO) {
         //Validate
         ValidationUtil.validate(productRequestDTO, ProductDTO.class);
 
@@ -64,7 +64,7 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PatchMapping(value = "/product/{productId}")
-    public ResponseEntity<?> updateProductById(@PathVariable Long productId, @RequestBody Map<String, Object> fields) throws MethodArgumentNotValidException {
+    public ResponseEntity<?> updateProductById(@PathVariable Long productId, @RequestBody Map<String, Object> fields) {
         //Validate
         ValidationUtil.validate(fields, ProductDTO.class);
 

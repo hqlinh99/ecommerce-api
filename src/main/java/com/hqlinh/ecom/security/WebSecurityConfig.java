@@ -28,7 +28,7 @@ public class WebSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeRequests(authorize -> {
             authorize.requestMatchers("/oauth2/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll();
-            authorize.requestMatchers(GET, "/upload/**", "/api/v1/products", "/api/v1/product/**").permitAll();
+            authorize.requestMatchers(GET, "/upload/**", "/api/v1/products", "/api/v1/product/**", "/api/v1/vnpay-callback").permitAll();
             authorize.requestMatchers(POST, "/api/v1/account", "/api/v1/login", "/api/v1/refresh-token").permitAll();
 
             authorize.requestMatchers(GET, "/api/v1/accounts").hasAnyRole(ADMIN.name());

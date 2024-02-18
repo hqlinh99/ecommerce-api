@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hqlinh.ecom.account.AccountDTO;
 import com.hqlinh.ecom.order_item.OrderItemDTO;
+import com.hqlinh.ecom.payment.Payment;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -13,8 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -22,8 +21,11 @@ public abstract class OrderDTO {
     private Long id;
     @Min(value = 0L, message = "total amount can not be smaller than 0")
     private Long totalAmount;
-    @NotBlank(message = "order status shouldn't be NULL OR EMPTY")
+    @NotNull(message = "order status shouldn't be NULL")
     private OrderStatus status;
+
+    private Payment payment;
+    private String note;
     private Number createdAt;
     private Number updatedAt;
     @NotNull(message = "must be a customer in the order")
@@ -41,14 +43,24 @@ public abstract class OrderDTO {
         private Number createdAt = new Date().getTime();
         private AccountDTO.AccountIdDTO account;
         private Set<OrderItemDTO.OrderItemRequestDTO> orderItems;
+        private String note;
+        private Payment payment;
     }
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class OrderIdDTO {
+    public static class OrderIdRequestDTO {
         private Long id;
+    }
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class OrderStatusRequestDTO {
+        private OrderStatus status;
+        private Number updatedAt = new Date().getTime();
     }
 
     @Getter
@@ -65,6 +77,8 @@ public abstract class OrderDTO {
         @JsonIgnoreProperties(value = "order")
         private Set<OrderItemDTO.OrderItemResponseDTO> orderItems;
         private OrderStatus status;
+        private String note;
+        private Payment payment;
     }
 }
 

@@ -2,7 +2,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
       dialect: org.hibernate.dialect.MySQL8Dialect
       types:
         enabled: true
@@ -52,7 +52,9 @@ application:
         expiration: 20000000
       refresh-token:
         expiration: 604800000
-
+  vnpay:
+    secret-key: MDYQDGGNRJCKVYSGMDMNXLXYPTPCYJPR
+    terminal-id: WAA4ZVYD
 logging:
   level:
     org.springframework.security: DEBUG

@@ -2,11 +2,15 @@ package com.hqlinh.ecom.order;
 
 import com.hqlinh.ecom.account.Account;
 import com.hqlinh.ecom.order_item.OrderItem;
+import com.hqlinh.ecom.payment.Payment;
+import com.hqlinh.ecom.payment.PaymentStatus;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.util.Set;
 
@@ -26,6 +30,13 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private OrderStatus status = OrderStatus.PENDING;
+
+    @Column(name = "note")
+    private String note;
+
+    @Type(JsonType.class)
+    @Column(name = "payment", columnDefinition = "json")
+    private Payment payment;
 
     @Column(name = "created_at")
     private Number createdAt;
