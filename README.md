@@ -5,6 +5,7 @@ This project demonstrates the implementation of security using Spring Boot 3.0 a
 
 ### Features
 <hr>
+
 * User registration and login with JWT authentication
 * Password encryption using BCrypt
 * Role-based authorization with Spring Security
@@ -17,6 +18,7 @@ This project demonstrates the implementation of security using Spring Boot 3.0 a
 
 ### Technologies
 <hr>
+
 * Spring boot 3.0 
 * Spring Security
 * Spring Data JPA
