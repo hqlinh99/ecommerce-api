@@ -3,25 +3,19 @@ package com.hqlinh.ecom.order;
 import com.hqlinh.ecom.account.Account;
 import com.hqlinh.ecom.account.IAccountRepository;
 import com.hqlinh.ecom.account.Role;
-import com.hqlinh.ecom.core.CustomException;
 import com.hqlinh.ecom.order_item.IOrderItemRepository;
-import com.hqlinh.ecom.order_item.OrderItem;
 import com.hqlinh.ecom.payment.PaymentConfig;
-import com.hqlinh.ecom.payment.PaymentDTO;
 import com.hqlinh.ecom.product.IProductRepository;
 import com.hqlinh.ecom.util.DTOUtil;
-import com.hqlinh.ecom.util.ValueMapper;
 import jakarta.persistence.NoResultException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URLEncoder;
@@ -99,15 +93,15 @@ public class OrderService {
     }
 
     @SneakyThrows
-    public PaymentDTO.PaymentResponseDTO createWithVNPAY(OrderDTO.OrderRequestDTO orderRequestDTO) {
-        OrderDTO.OrderResponseDTO orderResponseDTO = create(orderRequestDTO);
+    public OrderDTO.OrderResponseDTO createWithVNPAY(OrderDTO.OrderRequestDTO orderRequestDTO) {
+        OrderDTO.OrderResponseDTO orderResult = create(orderRequestDTO);
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", "2.1.0");
         vnp_Params.put("vnp_Command", "pay");
         vnp_Params.put("vnp_TmnCode", environment.getProperty("application.vnpay.terminal-id"));
-        vnp_Params.put("vnp_Amount", String.valueOf(orderResponseDTO.getTotalAmount() * 24000 * 100));
+        vnp_Params.put("vnp_Amount", String.valueOf(orderResult.getTotalAmount() * 24000 * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_TxnRef", orderResponseDTO.getId().toString());
+        vnp_Params.put("vnp_TxnRef", orderResult.getId().toString());
         vnp_Params.put("vnp_OrderType", "billpayment");
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_ReturnUrl", ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString() + "/api/v1/vnpay-callback");
@@ -116,7 +110,7 @@ public class OrderService {
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         vnp_Params.put("vnp_CreateDate", formatter.format(cld.getTime()));
-        vnp_Params.put("vnp_OrderInfo", "order= " + orderResponseDTO.getId() + ";payment= " + orderResponseDTO.getPayment().getId());
+        vnp_Params.put("vnp_OrderInfo", "order= " + orderResult.getId() + ";payment= " + orderResult.getPayment().getId());
         cld.add(Calendar.MINUTE, 15);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         //Add Params of 2.1.0 Version
@@ -148,7 +142,8 @@ public class OrderService {
         String queryUrl = query.toString();
         String vnp_SecureHash = paymentConfig.hmacSHA512(Objects.requireNonNull(environment.getProperty("application.vnpay.secret-key")), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        return new PaymentDTO.PaymentResponseDTO("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?" + queryUrl);
+        orderResult.getPayment().setUrlVNPAY("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?" + queryUrl);
+        return orderResult;
     }
 
     public List<OrderDTO.OrderResponseDTO> getOrders() {

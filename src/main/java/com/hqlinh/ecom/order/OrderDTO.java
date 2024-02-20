@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hqlinh.ecom.account.AccountDTO;
 import com.hqlinh.ecom.order_item.OrderItemDTO;
-import com.hqlinh.ecom.payment.Payment;
+import com.hqlinh.ecom.payment.PaymentInfo;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,7 @@ public abstract class OrderDTO {
     @NotNull(message = "order status shouldn't be NULL")
     private OrderStatus status;
 
-    private Payment payment;
+    private PaymentInfo payment;
     private String note;
     private Number createdAt;
     private Number updatedAt;
@@ -44,7 +43,7 @@ public abstract class OrderDTO {
         private AccountDTO.AccountIdDTO account;
         private Set<OrderItemDTO.OrderItemRequestDTO> orderItems;
         private String note;
-        private Payment payment;
+        private PaymentInfo payment;
     }
 
     @Getter
@@ -78,7 +77,7 @@ public abstract class OrderDTO {
         private Set<OrderItemDTO.OrderItemResponseDTO> orderItems;
         private OrderStatus status;
         private String note;
-        private Payment payment;
+        private PaymentInfo payment;
     }
 }
 

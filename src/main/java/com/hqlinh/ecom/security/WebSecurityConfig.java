@@ -1,5 +1,6 @@
 package com.hqlinh.ecom.security;
 
+import com.hqlinh.ecom.security.oauth2.OAuth2AuthenticationFailedHandler;
 import com.hqlinh.ecom.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class WebSecurityConfig {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailedHandler oAuth2AuthenticationFailedHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
@@ -46,9 +48,13 @@ public class WebSecurityConfig {
             config.authorizationEndpoint(subconfig -> subconfig.baseUri("/oauth2/authorization"));
             config.redirectionEndpoint(subconfig -> subconfig.baseUri("/oauth2/callback/*"));
             config.successHandler(oAuth2AuthenticationSuccessHandler);
+            config.failureHandler(oAuth2AuthenticationFailedHandler);
+            config.loginPage("/error");
         });
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler));
+        http.exceptionHandling(exception -> {
+            exception.accessDeniedHandler(customAccessDeniedHandler);
+        });
         return http.build();
     }
 }

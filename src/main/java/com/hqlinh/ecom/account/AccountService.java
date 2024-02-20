@@ -31,7 +31,7 @@ public class AccountService {
             log.info("AccountService::create execution started...");
 
             //CHECK EXISTED
-            if (accountRepository.existsByUsername(accountRequestDTO.getUsername())) {
+            if (accountRequestDTO.getUsername() != null && accountRepository.existsByUsername(accountRequestDTO.getUsername())) {
                 throw new CustomException.DuplicatedException("Account already exists with username " + accountRequestDTO.getUsername());
             }
             if (accountRepository.existsByEmail(accountRequestDTO.getEmail())) {

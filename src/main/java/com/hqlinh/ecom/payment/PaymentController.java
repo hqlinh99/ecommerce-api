@@ -87,6 +87,7 @@ public class PaymentController {
                         if (orderResult.getPayment().getStatus().equals(PaymentStatus.PAYING)) {
                             if ("00".equals(request.getParameter("vnp_ResponseCode"))) {
                                 orderResult.getPayment().setStatus(PaymentStatus.PAID);
+                                orderResult.getPayment().setUrlVNPAY(null);
                                 orderResult.setStatus(OrderStatus.APPROVED);
                                 orderRepository.save(DTOUtil.map(orderResult, Order.class));
                                 response.sendRedirect("http://localhost:8888/admin/#!/profile/" + orderResult.getAccount().getId());

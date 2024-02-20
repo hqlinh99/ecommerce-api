@@ -2,8 +2,7 @@ package com.hqlinh.ecom.order;
 
 import com.hqlinh.ecom.account.Account;
 import com.hqlinh.ecom.order_item.OrderItem;
-import com.hqlinh.ecom.payment.Payment;
-import com.hqlinh.ecom.payment.PaymentStatus;
+import com.hqlinh.ecom.payment.PaymentInfo;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,7 +35,7 @@ public class Order {
 
     @Type(JsonType.class)
     @Column(name = "payment", columnDefinition = "json")
-    private Payment payment;
+    private PaymentInfo payment;
 
     @Column(name = "created_at")
     private Number createdAt;

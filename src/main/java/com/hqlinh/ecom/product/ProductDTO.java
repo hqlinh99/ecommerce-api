@@ -18,10 +18,10 @@ public abstract class ProductDTO {
     @NotBlank(message = "product type shouldn't be NULL OR EMPTY")
     private String productType;
 
-    @Min(value = 1, message = "quantity is not defined")
+    @Min(value = 1, message = "quantity can't be less than 1")
     private int quantity;
 
-    @Min(value = 200, message = "product price can't be less than 200")
+    @Min(value = 0, message = "product price can't be less than 0")
     @Max(value = 500000, message = "product price can't be more than 500000")
     private long price;
     private List<String> images;

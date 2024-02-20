@@ -36,8 +36,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
         if (oAuth2AuthenticationToken.getAuthorizedClientRegistrationId().equals("google")) {
             tempAccount.setAvatar(defaultOAuth2User.getAttributes().get("picture").toString());
-            tempAccount.setFirstName(defaultOAuth2User.getAttributes().get("given_name").toString());
-            tempAccount.setLastName(defaultOAuth2User.getAttributes().get("family_name").toString());
+            tempAccount.setFirstName(defaultOAuth2User.getAttributes().get("family_name").toString());
+            tempAccount.setLastName(defaultOAuth2User.getAttributes().get("given_name").toString());
             tempAccount.setEmail(defaultOAuth2User.getAttributes().get("email").toString());
             tempAccount.setProviderId(defaultOAuth2User.getAttributes().get("sub").toString());
             tempAccount.setAuthProvider(AuthProvider.google);
