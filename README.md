@@ -12,7 +12,7 @@ This project demonstrates the implementation of security using Spring Boot 3.0 a
 * Customized access denied handling
 * Logout mechanism
 * Refresh token
-* Product, File, Order management
+* Account, Product, File and Order management
 * Social Oauth2 login
 * Integrated with VNPAY
 
